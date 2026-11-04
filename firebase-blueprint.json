@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "user": {
+      "title": "User Profile",
+      "description": "User profile representation in BunkerStroy",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["customer", "contractor", "logistics_driver", "esco_specialist", "admin", "individual", "legal", "supplier"] },
+        "phone": { "type": "string", "maxLength": 64 },
+        "companyName": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "email", "displayName"]
+    },
+    "product": {
+      "title": "Building Material Product",
+      "description": "Construction material catalog item in BunkerStroy marketplace",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 64 },
+        "price": { "type": "number" },
+        "unit": { "type": "string", "maxLength": 32 },
+        "supplierName": { "type": "string", "maxLength": 128 },
+        "stock": { "type": "number" },
+        "minOrder": { "type": "number" },
+        "energyEfficiencyRating": { "type": "string", "maxLength": 16 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "title", "category", "price", "unit"]
+    },
+    "order": {
+      "title": "Materials Marketplace Order",
+      "description": "Building material purchase and delivery order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "buyerId": { "type": "string", "maxLength": 128 },
+        "buyerName": { "type": "string", "maxLength": 128 },
+        "buyerPhone": { "type": "string", "maxLength": 64 },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "assigned", "in_transit", "delivered", "cancelled"] },
+        "deliveryAddress": { "type": "string", "maxLength": 500 },
+        "vehicleType": { "type": "string", "maxLength": 64 },
+        "paymentMethod": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "buyerId", "totalAmount", "status", "deliveryAddress"]
+    },
+    "logisticsDispatch": {
+      "title": "Logistics Dispatch Tracking",
+      "description": "Special machinery and freight tracking document",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "orderId": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "vehicleType": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["pending", "assigned", "loading", "on_way", "delivered"] },
+        "origin": { "type": "string", "maxLength": 256 },
+        "destination": { "type": "string", "maxLength": 256 },
+        "weightTons": { "type": "number" },
+        "costSum": { "type": "number" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "orderId", "status", "vehicleType"]
+    },
+    "escoAudit": {
+      "title": "ESCO Energy Efficiency Audit",
+      "description": "Energy Service Company audit and green building calculation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "clientId": { "type": "string", "maxLength": 128 },
+        "clientName": { "type": "string", "maxLength": 128 },
+        "buildingType": { "type": "string", "maxLength": 64 },
+        "areaM2": { "type": "number" },
+        "currentEnergyUsage": { "type": "number" },
+        "estimatedSavings": { "type": "number" },
+        "paybackYears": { "type": "number" },
+        "status": { "type": "string", "enum": ["draft", "submitted", "approved", "completed"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "clientId", "buildingType", "areaM2", "status"]
+    },
+    "cabinetLog": {
+      "title": "Cabinet Activity and Security Log",
+      "description": "Activity, security and access log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 128 },
+        "actor": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 64 },
+        "details": { "type": "string", "maxLength": 1000 },
+        "timestamp": { "type": "string", "maxLength": 64 },
+        "ip": { "type": "string", "maxLength": 64 },
+        "level": { "type": "string", "enum": ["info", "success", "warning", "error"] }
+      },
+      "required": ["id", "action", "actor", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User profiles stored by user ID"
+    },
+    "/products/{productId}": {
+      "schema": "product",
+      "description": "Materials marketplace catalog items"
+    },
+    "/orders/{orderId}": {
+      "schema": "order",
+      "description": "Customer purchase and shipment orders"
+    },
+    "/logistics/{dispatchId}": {
+      "schema": "logisticsDispatch",
+      "description": "Logistics dispatch and fleet tracking records"
+    },
+    "/esco_audits/{auditId}": {
+      "schema": "escoAudit",
+      "description": "ESCO energy audit proposals and assessments"
+    },
+    "/cabinet_logs/{logId}": {
+      "schema": "cabinetLog",
+      "description": "System and cabinet audit logs"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "BunkerStroy - Qurilish Mollari, Logistika & ESCO",
+  "description": "BunkerStroy qurilish mollari marketplace'i, yuk logistikasi, ESCO energiya auditi va buyurtmalarni boshqarish platformasi.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

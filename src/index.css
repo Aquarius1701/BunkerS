@@ -1,0 +1,840 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html,
+  body,
+  #root {
+    font-family: var(--font-sans);
+    background-color: #FFFFFF !important;
+    color: #374151 !important;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+
+  .font-mono-numbers {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F3F4F6;
+}
+::-webkit-scrollbar-thumb {
+  background: #9CA3AF;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFB800;
+}
+
+/* Yellow & Navy/Grey Hazard Stripe */
+.hazard-stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FFB800,
+    #FFB800 12px,
+    #0A1931 12px,
+    #0A1931 24px
+  );
+}
+
+.hazard-stripe-sm {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FFB800,
+    #FFB800 6px,
+    #0A1931 6px,
+    #0A1931 12px
+  );
+}
+
+.bg-tactical-grid {
+  background-color: #FFFFFF;
+  background-image: 
+    linear-gradient(to right, rgba(156, 163, 175, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(156, 163, 175, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.brushed-steel-header {
+  background: linear-gradient(180deg, #0A1931 0%, #071326 100%) !important;
+  border-bottom: 2px solid #FFB800 !important;
+  box-shadow: 0 4px 14px rgba(10, 25, 49, 0.25) !important;
+}
+
+.industrial-plate {
+  background: #F9FAFB !important;
+  border: 1px solid #D1D5DB !important;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.08) !important;
+}
+
+.industrial-rivet {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, #9CA3AF, #4B5563);
+  border: 1px solid #D1D5DB;
+}
+
+/* =========================================================================
+   COLOR SYSTEM:
+   - Full-screen OQ fon (#FFFFFF) — Qora (#000000) fonlar butunlay yo'qotilgan
+   - Asosiy ranglar: Oq (#FFFFFF), Kulrang (#F3F4F6, #E5E7EB, #374151), Sariq (#FFB800)
+   - Ba'zi asosiy joylarda (Bosh panel, Qidiruv paneli, Filtr tugmasi, Modal, Pastki panel) Tyomniy Siniy (#0A1931 / #071326 / #132C54) aralashtirilgan
+   - Faqat "Kirish" / "Kabinetga Kirish" tugmasi Qizil (#DC2626)
+   ========================================================================= */
+
+.bg-8k-navy-header {
+  background: linear-gradient(180deg, #0D2142 0%, #0A1931 55%, #071326 100%) !important;
+  box-shadow: 0 6px 20px -4px rgba(7, 19, 38, 0.45) !important;
+  color: #FFFFFF !important;
+}
+
+.bg-8k-navy-search {
+  background: linear-gradient(135deg, #0A1931 0%, #10274A 50%, #071326 100%) !important;
+  border: 1.5px solid #1E3A6D !important;
+  box-shadow: 0 8px 22px -6px rgba(7, 19, 38, 0.35) !important;
+  color: #FFFFFF !important;
+}
+
+/* =========================================================================
+   LIQUID GLASS DESIGN SYSTEM (Mahsulotlar, B2B Bunker, Filtr va Tugmalar)
+   Sichqoncha tugma ustiga borganda rang o'tkirlashadi, lekin tovlanish yo'q
+   ========================================================================= */
+.liquid-glass-nav-pill {
+  background: linear-gradient(135deg, rgba(19, 44, 84, 0.58) 0%, rgba(10, 25, 49, 0.76) 100%);
+  backdrop-filter: blur(22px) saturate(185%);
+  -webkit-backdrop-filter: blur(22px) saturate(185%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow:
+    0 6px 20px -4px rgba(7, 19, 38, 0.36),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.30);
+}
+
+.liquid-glass-tab-active {
+  background: rgba(255, 184, 0, 0.86) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  color: #071326 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+}
+.liquid-glass-tab-active:hover {
+  background: #FFB800 !important;
+  border-color: #FFFFFF !important;
+  color: #071326 !important;
+  box-shadow: none !important;
+}
+
+.liquid-glass-tab-inactive {
+  background: linear-gradient(135deg, rgba(10, 25, 49, 0.94) 0%, rgba(19, 44, 84, 0.88) 100%) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(147, 197, 253, 0.34) !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 6px 16px -4px rgba(7, 19, 38, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+}
+.liquid-glass-tab-inactive:hover {
+  background: #1B3B6F !important;
+  border-color: #FFB800 !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+.liquid-glass-input {
+  background: linear-gradient(135deg, rgba(13, 33, 66, 0.74) 0%, rgba(19, 44, 84, 0.68) 50%, rgba(7, 19, 38, 0.82) 100%) !important;
+  backdrop-filter: blur(22px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(190%) !important;
+  border: 1px solid rgba(147, 197, 253, 0.36) !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 6px 18px -4px rgba(4, 12, 26, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+  transition: background 0.18s ease, border-color 0.18s ease !important;
+}
+.liquid-glass-input:hover,
+.liquid-glass-input:focus {
+  background: linear-gradient(135deg, rgba(19, 44, 84, 0.86) 0%, rgba(13, 33, 66, 0.90) 100%) !important;
+  border-color: #FFB800 !important;
+  color: #FFFFFF !important;
+}
+.liquid-glass-input:-webkit-autofill,
+.liquid-glass-input:-webkit-autofill:hover,
+.liquid-glass-input:-webkit-autofill:focus,
+.liquid-glass-input:-webkit-autofill:active,
+.liquid-glass-tab-inactive:-webkit-autofill,
+.liquid-glass-tab-inactive:-webkit-autofill:hover,
+.liquid-glass-tab-inactive:-webkit-autofill:focus {
+  -webkit-text-fill-color: #FFFFFF !important;
+  caret-color: #FFFFFF !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0D2142 inset !important;
+  box-shadow: 0 0 0px 1000px #0D2142 inset, inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+  border: 1px solid rgba(147, 197, 253, 0.38) !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+}
+
+/* Liquid Glass Tugmalar (Kirish, Savat, Filtr, Qidiruv, Savatga) — Hoverda rang o'tkirlashadi, tovlanish yo'q */
+.liquid-glass-btn-red {
+  background: rgba(220, 38, 38, 0.78) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(254, 202, 202, 0.48) !important;
+  color: #FFFFFF !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease !important;
+}
+.liquid-glass-btn-red:hover {
+  background: #DC2626 !important;
+  border-color: #FCA5A5 !important;
+  box-shadow: none !important;
+}
+
+.liquid-glass-btn-navy {
+  background: rgba(19, 44, 84, 0.68) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #FFFFFF !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease !important;
+}
+.liquid-glass-btn-navy:hover {
+  background: #1B3B6F !important;
+  border-color: #FFB800 !important;
+  box-shadow: none !important;
+}
+
+.liquid-glass-btn-emerald {
+  background: rgba(5, 150, 105, 0.78) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(110, 231, 183, 0.50) !important;
+  color: #FFFFFF !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease !important;
+}
+.liquid-glass-btn-emerald:hover {
+  background: #059669 !important;
+  border-color: #6EE7B7 !important;
+  box-shadow: none !important;
+}
+
+.liquid-glass-btn-amber {
+  background: rgba(255, 184, 0, 0.84) !important;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  color: #071326 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease !important;
+}
+.liquid-glass-btn-amber:hover {
+  background: #FFB800 !important;
+  border-color: #FFFFFF !important;
+  color: #071326 !important;
+  box-shadow: none !important;
+}
+
+.liquid-glass-search-bar {
+  background: linear-gradient(135deg, rgba(10, 25, 49, 0.86) 0%, rgba(19, 44, 84, 0.80) 50%, rgba(7, 19, 38, 0.90) 100%) !important;
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.26) !important;
+  box-shadow:
+    0 10px 28px -6px rgba(7, 19, 38, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.32) !important;
+  color: #FFFFFF !important;
+}
+
+.liquid-glass-card {
+  background: linear-gradient(155deg, rgba(25, 58, 109, 0.58) 0%, rgba(13, 33, 66, 0.72) 50%, rgba(7, 19, 38, 0.84) 100%) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border: 1.5px solid rgba(147, 197, 253, 0.38) !important;
+  box-shadow:
+    0 10px 26px -6px rgba(4, 12, 26, 0.36),
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.36),
+    inset 0 -1px 0 0 rgba(56, 189, 248, 0.20) !important;
+  transition: background 0.18s ease, border-color 0.18s ease, filter 0.18s ease !important;
+}
+.liquid-glass-card:hover {
+  background: linear-gradient(155deg, #1B3B6F 0%, #0F2547 55%, #0A1931 100%) !important;
+  border-color: #FFB800 !important;
+  filter: saturate(1.22) contrast(1.06);
+  box-shadow: none !important;
+}
+
+.liquid-glass-card-image {
+  background: linear-gradient(145deg, rgba(19, 44, 84, 0.42) 0%, rgba(7, 19, 38, 0.64) 100%) !important;
+  backdrop-filter: blur(18px) saturate(185%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(185%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.20) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.26) !important;
+  transition: background 0.18s ease !important;
+}
+.liquid-glass-card:hover .liquid-glass-card-image {
+  background: linear-gradient(145deg, rgba(27, 59, 111, 0.88) 0%, rgba(10, 25, 49, 0.95) 100%) !important;
+}
+
+.liquid-glass-card-footer {
+  background: linear-gradient(160deg, rgba(13, 33, 66, 0.62) 0%, rgba(7, 19, 38, 0.82) 100%) !important;
+  backdrop-filter: blur(20px) saturate(185%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(185%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18) !important;
+  transition: background 0.18s ease !important;
+}
+.liquid-glass-card:hover .liquid-glass-card-footer {
+  background: linear-gradient(160deg, #132C54 0%, #071326 100%) !important;
+}
+
+/* Liquid Glass Filtr Paneli (Tyomniy Siniy + Liquid Glass) */
+.liquid-glass-filter-drawer {
+  background: linear-gradient(160deg, rgba(10, 25, 49, 0.88) 0%, rgba(19, 44, 84, 0.82) 50%, rgba(7, 19, 38, 0.94) 100%) !important;
+  backdrop-filter: blur(28px) saturate(195%);
+  -webkit-backdrop-filter: blur(28px) saturate(195%);
+  border-left: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    -16px 0 42px rgba(4, 12, 26, 0.55),
+    inset 1px 0 0 rgba(255, 255, 255, 0.28) !important;
+  color: #FFFFFF !important;
+}
+
+.liquid-glass-filter-card {
+  background: linear-gradient(145deg, rgba(19, 44, 84, 0.62) 0%, rgba(7, 19, 38, 0.78) 100%) !important;
+  backdrop-filter: blur(20px) saturate(185%);
+  -webkit-backdrop-filter: blur(20px) saturate(185%);
+  border: 1px solid rgba(147, 197, 253, 0.32) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+}
+
+/* Liquid Glass Window & Sub-Window Panels for Customer Cabinet Settings (Oynaning o'zi Liquid Glass, knopkalar o'z holatida) */
+.liquid-glass-settings-window {
+  background: linear-gradient(135deg, rgba(13, 33, 66, 0.78) 0%, rgba(19, 44, 84, 0.72) 50%, rgba(7, 19, 38, 0.86) 100%) !important;
+  backdrop-filter: blur(28px) saturate(195%);
+  -webkit-backdrop-filter: blur(28px) saturate(195%);
+  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    0 20px 48px -12px rgba(7, 19, 38, 0.52),
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 0 rgba(96, 165, 250, 0.24) !important;
+}
+
+.liquid-glass-settings-card {
+  background: linear-gradient(145deg, rgba(25, 58, 109, 0.56) 0%, rgba(10, 25, 49, 0.74) 100%) !important;
+  backdrop-filter: blur(22px) saturate(185%);
+  -webkit-backdrop-filter: blur(22px) saturate(185%);
+  border: 1px solid rgba(147, 197, 253, 0.36) !important;
+  box-shadow:
+    0 12px 30px -8px rgba(4, 12, 26, 0.42),
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 0 0 rgba(59, 130, 246, 0.22) !important;
+}
+
+.liquid-glass-sidebar-panel {
+  background: linear-gradient(165deg, rgba(10, 25, 49, 0.88) 0%, rgba(19, 44, 84, 0.82) 50%, rgba(7, 19, 38, 0.92) 100%) !important;
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+}
+
+/* Eliminate Full Black (#000000 / #050505) backgrounds -> Replace with White (#FFFFFF) or Tyomniy Siniy (#0A1931) */
+.bg-black,
+.bg-\[\#000000\],
+.bg-\[\#050505\],
+.bg-\[\#0A0A0A\],
+.bg-\[\#0D0D0D\],
+.bg-\[\#111111\],
+.bg-\[\#141414\],
+.customer-cabinet-light,
+.supplier-cabinet-light {
+  background-color: #FFFFFF !important;
+  color: #374151 !important;
+}
+
+.customer-cabinet-night {
+  background-color: #071326 !important;
+  color: #F3F4F6 !important;
+}
+
+/* Non-login red buttons converted to Grey so ONLY Kirish / Kabinetga Kirish is Red */
+.bg-red-600:not(.btn-kabinet-kirish-red),
+.bg-red-600\/80:not(.btn-kabinet-kirish-red),
+.bg-red-600\/85:not(.btn-kabinet-kirish-red),
+.bg-red-500:not(.btn-kabinet-kirish-red) {
+  background-color: #6B7280 !important;
+  color: #FFFFFF !important;
+  border-color: #4B5563 !important;
+}
+
+/* ONLY Kirish / Kabinetga Kirish button is strictly Red (#DC2626) */
+.btn-kabinet-kirish-red {
+  background: #DC2626 !important;
+  background-color: #DC2626 !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid #F87171 !important;
+}
+.btn-kabinet-kirish-red:hover {
+  background: #B91C1C !important;
+  background-color: #B91C1C !important;
+}
+.btn-kabinet-kirish-red span,
+.btn-kabinet-kirish-red svg {
+  color: #FFFFFF !important;
+}
+
+/* =========================================================================
+   MOBILE-FIRST COMPACT RESPONSIVENESS (375px - 425px)
+   ========================================================================= */
+@media (max-width: 640px) {
+  .rounded-3xl {
+    border-radius: 1rem !important;
+  }
+  .rounded-2xl {
+    border-radius: 0.75rem !important;
+  }
+  .p-8, .p-7, .p-6 {
+    padding: 0.875rem !important;
+  }
+  .px-8, .px-7, .px-6 {
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+  .py-8, .py-7, .py-6 {
+    padding-top: 0.875rem !important;
+    padding-bottom: 0.875rem !important;
+  }
+  table th,
+  table td {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    padding-left: 0.625rem !important;
+    padding-right: 0.625rem !important;
+  }
+}
+
+/* Global clickable button: hoverda rang o'tkirlashadi, tovlanish yo'q */
+button:not(:disabled) {
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+button:not(:disabled):hover {
+  filter: saturate(1.18) contrast(1.06);
+}
+button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* =========================================================================
+   13 TA MAXSUS ANIMATSIYA (ANIMATIONS 1 TO 13)
+   ========================================================================= */
+
+/* 1-ANIMATSIYA: Yuqori sariq-tyomniy siniy himoya chizig'ining uzluksiz harakati */
+@keyframes anim1HazardFlow {
+  0% { background-position: 0 0; }
+  100% { background-position: 48px 0; }
+}
+.anim-part-1 {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FFB800,
+    #FFB800 8px,
+    #132C54 8px,
+    #132C54 16px
+  ) !important;
+  background-size: 48px 48px !important;
+  animation: anim1HazardFlow 2.2s linear infinite;
+}
+
+/* 2-ANIMATSIYA: BUNKER STROY Logotipi va Kaska belgisining suzib turishi va sariq nurlanishi */
+@keyframes anim2LogoFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 2px 8px rgba(255, 184, 0, 0.25);
+  }
+  50% {
+    transform: translateY(-2.5px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(255, 184, 0, 0.55);
+  }
+}
+.anim-part-2 {
+  animation: anim2LogoFloat 3.2s ease-in-out infinite;
+}
+
+/* 3-ANIMATSIYA: Savat tugmasining davriy tebranish va sariq impuls animatsiyasi */
+@keyframes anim3CartPulse {
+  0%, 80%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  85% {
+    transform: scale(1.06) rotate(-4deg);
+    box-shadow: 0 0 14px rgba(255, 184, 0, 0.6);
+  }
+  90% {
+    transform: scale(1.06) rotate(4deg);
+  }
+  95% {
+    transform: scale(1.03) rotate(-2deg);
+  }
+}
+.anim-part-3 {
+  animation: anim3CartPulse 4s ease-in-out infinite;
+}
+
+/* 4-ANIMATSIYA: Til almashtirish tugmasi (O'Z <-> РУ) 3D aylanish va nurlanish animatsiyasi */
+@keyframes anim4LangFlip {
+  0%, 100% {
+    transform: perspective(200px) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(200px) rotateY(14deg) translateY(-1px);
+  }
+}
+.anim-part-4 {
+  animation: anim4LangFlip 3.5s ease-in-out infinite;
+}
+.anim-part-4:active {
+  transform: perspective(200px) rotateY(180deg) scale(0.95) !important;
+}
+
+/* 5-ANIMATSIYA: "Kirish" / "Kabinetga Kirish" qizil tugmasining har 5 soniyada O'ngga-Tepaga-Pastga-Chapga aylanma harakati */
+@keyframes anim5RedLoginOrbit {
+  0%, 68%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
+  }
+  75% {
+    transform: translate3d(5px, 0, 0) scale(1.04);
+    box-shadow: -3px 4px 18px rgba(220, 38, 38, 0.65);
+  }
+  82% {
+    transform: translate3d(0, -4px, 0) scale(1.05);
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.7);
+  }
+  89% {
+    transform: translate3d(0, 4px, 0) scale(1.04);
+    box-shadow: 0 -2px 18px rgba(220, 38, 38, 0.65);
+  }
+  95% {
+    transform: translate3d(-5px, 0, 0) scale(1.04);
+    box-shadow: 3px 4px 18px rgba(220, 38, 38, 0.65);
+  }
+}
+.anim-part-5,
+.animate-cabinet-btn-5s {
+  animation: anim5RedLoginOrbit 5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+.anim-part-5:hover,
+.animate-cabinet-btn-5s:hover {
+  animation-play-state: paused;
+  transform: scale(1.07) !important;
+}
+
+/* 6-ANIMATSIYA: Pastki navigatsiya bo'limlari (Mahsulotlar va B2B Bunker) silliq siljish animatsiyasi */
+@keyframes anim6NavSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.anim-part-6 {
+  animation: anim6NavSlide 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 7-ANIMATSIYA: Qidiruv paneli va Lupa tugmasining radar impuls animatsiyasi */
+@keyframes anim7SearchRadar {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 184, 0, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 184, 0, 0);
+  }
+}
+.anim-part-7 {
+  animation: anim7SearchRadar 2.4s ease-out infinite;
+}
+
+/* 8-ANIMATSIYA: Bunker Qidiruv Filtri oynasining o'ngdan chapga prujinali sirg'alib chiqishi */
+@keyframes anim8FilterDrawer {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.anim-part-8,
+.animate-slide-left {
+  animation: anim8FilterDrawer 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 9-ANIMATSIYA: Filtr ichidagi Viloyat, Kategoriya va Xususiyatlar elementlarining to'lqinli ochilishi */
+@keyframes anim9FilterWave {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.anim-part-9 {
+  animation: anim9FilterWave 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 10-ANIMATSIYA: 6 talik Mahsulot kartochkalari setkasining pastdan ko'tarilib chiqishi va 3D hover effekti */
+@keyframes anim10CardRise {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.anim-part-10 {
+  animation: anim10CardRise 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.anim-part-10:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow: 0 12px 24px -6px rgba(10, 25, 49, 0.28) !important;
+  border-color: #FFB800 !important;
+}
+
+/* 11-ANIMATSIYA: "+ Savatga" tugmasi (tovlanishsiz) */
+.anim-part-11 {
+  animation: none !important;
+}
+
+/* 12-ANIMATSIYA: Kabinetga Kirish, Savat va Mahsulot modallarining 3D masshtab bilan ochilishi */
+@keyframes anim12Modal3DPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.86) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.anim-part-12,
+.animate-modal-pop {
+  animation: anim12Modal3DPop 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 13-ANIMATSIYA: Pastki panel (Footer) va Mijoz kabineti bildirishnomalarining mayin suzib chiqish animatsiyasi */
+@keyframes anim13FooterFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.anim-part-13,
+.animate-fadeIn {
+  animation: anim13FooterFloat 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 14-ANIMATSIYA: Savatga mahsulot yuklanganda Savat yozuvi Savat logosi yon tarafidan chiqib kelish animatsiyasi */
+@keyframes savatTextSlideFromLogo {
+  0% {
+    opacity: 0;
+    transform: translateX(-18px) scale(0.85);
+    max-width: 0;
+  }
+  65% {
+    opacity: 1;
+    transform: translateX(3px) scale(1.04);
+    max-width: 180px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    max-width: 180px;
+  }
+}
+
+@keyframes savatIconBounce {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  35% {
+    transform: scale(1.28) rotate(-10deg);
+  }
+  70% {
+    transform: scale(1.12) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-savat-text-slide {
+  animation: savatTextSlideFromLogo 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-savat-icon-bounce {
+  animation: savatIconBounce 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* =========================================================================
+   MOBILE VIEWPORT STANDARDIZATION (360px - 428px Telefon ekranlari uchun)
+   Kompyuter ekraniga (>= 640px) ta'sir qilmaydi!
+   ========================================================================= */
+@media (max-width: 639px) {
+  html,
+  body,
+  #root {
+    font-size: 14px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Jadvallarni mobil ekranda ixcham va sig'imli ko'rsatish */
+  table th,
+  table td {
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    font-size: 11px !important;
+  }
+
+  /* Scrollbar mobilda ingichka bo'lsin */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+/* =========================================================================
+   TA'MINOTCHI KABINETI — KUNDUZGI REJIM (.supplier-cabinet-light)
+   ========================================================================= */
+.supplier-cabinet-light {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+.supplier-cabinet-light main {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+.supplier-cabinet-light main [class*="bg-[#151719]"],
+.supplier-cabinet-light main [class*="bg-[#222528]"],
+.supplier-cabinet-light main [class*="bg-[#292C2F]"],
+.supplier-cabinet-light main [class*="bg-[#071326]"],
+.supplier-cabinet-light main [class*="bg-[#0A1931]"],
+.supplier-cabinet-light main [class*="bg-[#0F2547]"],
+.supplier-cabinet-light main [class*="bg-[#132C54]"],
+.supplier-cabinet-light main [class*="bg-slate-900"],
+.supplier-cabinet-light main [class*="bg-slate-950"] {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+.supplier-cabinet-light main .liquid-glass-settings-window,
+.supplier-cabinet-light main .liquid-glass-settings-card,
+.supplier-cabinet-light main .liquid-glass-filter-card,
+.supplier-cabinet-light main .liquid-glass-card,
+.supplier-cabinet-light main .liquid-glass-card-footer {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(241, 245, 249, 0.96) 100%) !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.08) !important;
+}
+
+.supplier-cabinet-light main .liquid-glass-tab-inactive {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F1F5F9 100%) !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+.supplier-cabinet-light main .liquid-glass-input,
+.supplier-cabinet-light main input:not([type="checkbox"]):not([type="radio"]),
+.supplier-cabinet-light main select,
+.supplier-cabinet-light main textarea {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+  border-color: #94A3B8 !important;
+}
+
+.supplier-cabinet-light main [class*="text-white"],
+.supplier-cabinet-light main [class*="text-[#F5F5F2]"] {
+  color: #0F172A !important;
+}
+
+.supplier-cabinet-light main [class*="text-slate-200"],
+.supplier-cabinet-light main [class*="text-slate-300"],
+.supplier-cabinet-light main [class*="text-slate-400"],
+.supplier-cabinet-light main [class*="text-[#B8B8B3]"],
+.supplier-cabinet-light main [class*="text-sky-100"],
+.supplier-cabinet-light main [class*="text-sky-200"] {
+  color: #334155 !important;
+}
+
+.supplier-cabinet-light main [class*="text-amber-300"],
+.supplier-cabinet-light main [class*="text-amber-400"],
+.supplier-cabinet-light main [class*="text-[#FFB800]"] {
+  color: #B45309 !important;
+}
+
+.supplier-cabinet-light main [class*="text-emerald-300"],
+.supplier-cabinet-light main [class*="text-emerald-400"] {
+  color: #047857 !important;
+}
+
+.supplier-cabinet-light main .liquid-glass-tab-active,
+.supplier-cabinet-light main .liquid-glass-btn-amber,
+.supplier-cabinet-light main [class*="bg-amber-400"],
+.supplier-cabinet-light main [class*="bg-amber-500"],
+.supplier-cabinet-light main [class*="bg-[#FFB800]"] {
+  background: linear-gradient(145deg, #FFD23F 0%, #FFB800 58%, #E09900 100%) !important;
+  color: #071326 !important;
+}
+
+.supplier-cabinet-light main .liquid-glass-btn-emerald,
+.supplier-cabinet-light main [class*="bg-emerald-600"],
+.supplier-cabinet-light main [class*="bg-emerald-500"]:not([class*="/"]) {
+  background: linear-gradient(145deg, #10B981 0%, #059669 100%) !important;
+  color: #FFFFFF !important;
+}
+
