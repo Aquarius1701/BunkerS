@@ -64,7 +64,7 @@ import {
 } from 'lucide-react';
 import { RealTelegramLogo, RealInstagramLogo, RealPhoneLogo } from './SocialLogos';
 import { UserProfile, SupplierPartner, SystemLog, LogCategory, LogisticsVehicle, CompanyInfo, CommissionBasis } from '../types';
-import { getAdminConfig, saveAdminConfig, AdminConfig, ADMIN_CONFIRMATION_PASSWORD, isLoginTakenAnywhere, getLoginConflictError, isLoginRejectedError, compressImageFileToDataUrl } from '../lib/adminSettings';
+import { getAdminConfig, saveAdminConfig, AdminConfig, isLoginTakenAnywhere, getLoginConflictError, isLoginRejectedError, compressImageFileToDataUrl } from '../lib/adminSettings';
 import {
   SecurityBlockRequest,
   getSecurityBlockRequests,
@@ -1333,7 +1333,7 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
     const trimmed = pass.trim();
     if (!trimmed) return false;
     const currentAdminPass = (config.password || 'ADMIN.').trim();
-    return trimmed === currentAdminPass || trimmed === ADMIN_CONFIRMATION_PASSWORD;
+    return trimmed === currentAdminPass;
   };
 
   const openConfirmModal = (title: string, description: string, onConfirm: () => void) => {
@@ -2321,7 +2321,7 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
       detailedReport.sales.length > 0
         ? detailedReport.sales
             .map((item, i) => {
-              const itemBaseSum = detailedReport.commissionBasis === 'profit' ? item.profitSum : item.totalSum;
+              const itemBaseSum = (detailedReport.commissionBasis === 'profit' ? item.profitSum : item.totalSum) || 0;
               const itemBunkerShare = Math.round((itemBaseSum * detailedReport.commissionRate) / 100);
               return `
           <tr>
@@ -6563,7 +6563,7 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
                       {detailedReport.sales.map((item, idx) => {
                         const basisLabel = detailedReport.commissionBasis === 'profit' ? 'Savdodan' : 'Umumiydan';
                         const itemBaseSum =
-                          detailedReport.commissionBasis === 'profit' ? item.profitSum : item.totalSum;
+                          (detailedReport.commissionBasis === 'profit' ? item.profitSum : item.totalSum) || 0;
                         const itemBunkerShare = Math.round(
                           (itemBaseSum * detailedReport.commissionRate) / 100
                         );

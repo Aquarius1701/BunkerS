@@ -13,6 +13,7 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onLogout: () => void;
   onOpenLogsModal?: () => void;
+  onOpenSecretLogs?: () => void;
   logoUrl?: string | null;
   telegram?: string;
   instagram?: string;
@@ -27,6 +28,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   isCartOpen = false,
   user,
   onOpenAuth,
+  onLogout,
+  onOpenLogsModal,
+  onOpenSecretLogs,
   logoUrl,
 }) => {
   const { lang, setLang, t } = useLanguage();
@@ -91,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={handleLogoClick}
               onDoubleClick={(e) => {
                 e.stopPropagation();
-                onOpenSecretLogs?.();
+                (onOpenSecretLogs || onOpenLogsModal)?.();
               }}
               className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none py-0.5 min-w-0"
               title="BunkerStroy (2 marta bosganda Loglar bo‘limi ochiladi)"

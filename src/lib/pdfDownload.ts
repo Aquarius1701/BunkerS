@@ -21,19 +21,23 @@ export interface MonitoringPdfParams {
   region?: string;
   phone?: string;
   periodLabel: string;
-  subTab: 'general' | 'online' | 'offline' | 'kirim_chiqim';
-  commissionRate: number;
+  nowFormatted?: string;
+  subTab?: 'general' | 'online' | 'offline' | 'kirim_chiqim' | 'pending_debts' | string;
+  commissionRate?: number;
   generalSalesTotalSum: number;
   generalSalesCount: number;
   onlineSalesTotalSum: number;
-  onlineBunkerCommissionSum: number;
+  onlineBunkerCommissionSum?: number;
   offlineCrmSalesTotalSum: number;
   generalSupplierNetSum: number;
+  showCommissionColumn?: boolean;
   dailyGroups: {
     day: string;
     totalSum: number;
-    commissionSum: number;
+    commissionSum?: number;
     netSum: number;
+    onlineSum?: number;
+    crmSum?: number;
     items: {
       date: string;
       orderChannel?: string;
@@ -43,11 +47,11 @@ export interface MonitoringPdfParams {
       unit: string;
       price: number;
       totalSum: number;
-      commission: number;
-      net: number;
+      commission?: number;
+      net?: number;
       buyerName: string;
-      buyerPhone: string;
-      status: string;
+      buyerPhone?: string;
+      status?: string;
     }[];
   }[];
   kirimChiqimRows?: {
@@ -65,6 +69,8 @@ export interface MonitoringPdfParams {
     soldRevenue: number;
     totalNetProfit: number;
   }[];
+  getSaleItemBunkerCommission?: (sale: any) => number;
+  formatBuyerDisplayName?: (name: string, phone?: string) => string;
 }
 
 export const downloadMonitoringPdfFile = (params: MonitoringPdfParams) => {
@@ -285,9 +291,9 @@ export const downloadMonitoringPdfFile = (params: MonitoringPdfParams) => {
             formatCurrency(sale.price),
             formatCurrency(sale.totalSum),
             ...(params.subTab === 'general'
-              ? [isOff ? "0 so'm (CRM)" : formatCurrency(sale.commission)]
+              ? [isOff ? "0 so'm (CRM)" : formatCurrency(sale.commission || 0)]
               : []),
-            formatCurrency(sale.net),
+            formatCurrency(sale.net || 0),
             `${sale.buyerName} (${sale.buyerPhone || '-'})`.slice(0, 32),
           ];
 
@@ -437,20 +443,47 @@ export const downloadB2bManifestPdfFile = (manifest: {
   doc.save(`B2B_Yuk_Royxati_${manifest.id}.pdf`);
 };
 
+export interface CustomerOrderPdfCustParams {
+  orderIds: string[];
+  lastOrderDate: string;
+  status?: string;
+  statusText?: string;
+  driverPhone?: string;
+  name?: string;
+  phone?: string;
+  address?: string;
+  customerName?: string;
+  customerPhone?: string;
+  customerAddress?: string;
+  totalSpent: number;
+  itemsList: { title: string; quantity: number; unit: string; price: number; totalSum: number }[];
+  companyName?: string;
+  supplierInn?: string;
+  supplierPhone?: string;
+  supplierRegion?: string;
+}
+
+export interface CustomerOrderPdfSupplierParams {
+  companyName: string;
+  inn?: string;
+  phone?: string;
+  region?: string;
+}
+
 export const downloadCustomerOrderPdfFile = (
-  cust: {
-    orderIds: string[];
-    lastOrderDate: string;
-    status: string;
-    driverPhone?: string;
-    name: string;
-    phone: string;
-    address: string;
-    totalSpent: number;
-    itemsList: { title: string; quantity: number; unit: string; price: number; totalSum: number }[];
-  },
-  supplierData: { companyName: string; inn?: string; phone?: string; region?: string }
+  cust: CustomerOrderPdfCustParams,
+  supplierData?: CustomerOrderPdfSupplierParams
 ) => {
+  const finalSupplier = supplierData || {
+    companyName: cust.companyName || '',
+    inn: cust.supplierInn,
+    phone: cust.supplierPhone,
+    region: cust.supplierRegion,
+  };
+  const customerName = cust.name || cust.customerName || '';
+  const customerPhone = cust.phone || cust.customerPhone || '';
+  const customerAddress = cust.address || cust.customerAddress || '';
+
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   let y = 15;
@@ -475,10 +508,10 @@ export const downloadCustomerOrderPdfFile = (
   doc.rect(12, y, pageWidth - 24, 24, 'FD');
   doc.setTextColor(15, 23, 42);
   doc.setFontSize(8.5);
-  doc.text(sanitizePdfText(`Xaridor: ${cust.name} | Tel: ${cust.phone}`), 16, y + 7);
-  doc.text(sanitizePdfText(`Yetkazish manzili: ${cust.address}`), 16, y + 13);
+  doc.text(sanitizePdfText(`Xaridor: ${customerName} | Tel: ${customerPhone}`), 16, y + 7);
+  doc.text(sanitizePdfText(`Yetkazish manzili: ${customerAddress}`), 16, y + 13);
   doc.text(
-    sanitizePdfText(`Ta'minotchi: ${supplierData.companyName} (STIR: ${supplierData.inn || '-'})`),
+    sanitizePdfText(`Ta'minotchi: ${finalSupplier.companyName} (STIR: ${finalSupplier.inn || '-'})`),
     16,
     y + 19
   );

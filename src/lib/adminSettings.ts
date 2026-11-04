@@ -240,9 +240,6 @@ const STORAGE_KEY = 'bunkerstroy_single_admin_config_v2';
 const LEGACY_STORAGE_KEY = 'bunkerstroy_admin_config';
 const SUB_ADMINS_STORAGE_KEY = 'bunkerstroy_sub_admins_v1';
 
-// Har bir tasdiqlash talab qiladigan jarayon uchun parol
-export const ADMIN_CONFIRMATION_PASSWORD = 'ADMIN.';
-
 export const ADMIN_PERMISSION_META: {
   id: AdminPermissionSection;
   label: string;

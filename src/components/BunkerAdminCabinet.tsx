@@ -47,7 +47,6 @@ import {
   saveSubAdmins,
   ADMIN_PERMISSION_META,
   BUNKER_ADMIN_CREDENTIALS,
-  ADMIN_CONFIRMATION_PASSWORD,
   getBunkerAdminCredentials,
   saveBunkerAdminCredentials,
   isLoginTakenAnywhere,
@@ -342,7 +341,6 @@ export const BunkerAdminCabinet: React.FC<BunkerAdminCabinetProps> = ({
     return (
       trimmed === latestBunkerPass ||
       trimmed === latestAdminPass ||
-      trimmed === ADMIN_CONFIRMATION_PASSWORD ||
       (Boolean(suppPass) && trimmed === suppPass)
     );
   };

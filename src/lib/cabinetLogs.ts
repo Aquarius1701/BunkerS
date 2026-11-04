@@ -22,9 +22,12 @@ export interface CabinetLogItem {
   userLogin: string;
   userName?: string;
   action: CabinetLogActionType;
+  actionType?: CabinetLogActionType;
   actionLabel: string;
+  title?: string;
   timestamp: string;
   device: string;
+  deviceName?: string;
   browser: string;
   os: string;
   screen: string;

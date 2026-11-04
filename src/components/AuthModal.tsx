@@ -41,6 +41,7 @@ import {
   getBlockedLoginRegisteredPhoneInfo,
   acquireCabinetDeviceLock,
 } from '../lib/securityGuard';
+import { setAuthToken } from '../lib/api';
 import { 
   Truck, 
   AlertCircle, 
@@ -1049,6 +1050,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         return;
       }
 
+      if (migData.accessToken) {
+        setAuthToken(migData.accessToken);
+      }
+
       const passwordHash: string = migData.passwordHash;
       const rawAcc = { ...migrationTarget.rawAccount };
       // 6-bosqich: Eski ochiq parolni butunlay olib tashlash!
@@ -1312,6 +1317,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         }),
       });
       const verifyData = await verifyResp.json().catch(() => ({}));
+      if (verifyData?.accessToken) {
+        setAuthToken(verifyData.accessToken);
+      }
 
       if (verifyData?.userId) {
         const exactSub = matchedSubAdmins.find((sa) => sa.id === verifyData.userId);

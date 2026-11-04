@@ -60,12 +60,14 @@ export type UserRole =
   | 'specialist' 
   | 'admin' 
   | 'bunker_admin'
+  | 'sub_admin'
   | 'supplier';
 
 export interface UserProfile {
   id: string;
   email: string;
   displayName: string;
+  login?: string;
   firstName?: string;
   lastName?: string;
   userType?: UserType;
@@ -302,8 +304,12 @@ export interface Order {
   deliveryLandmark?: string;
   recipientName?: string;
   recipientPhone?: string;
+  destinationRegion?: string;
+  buyerType?: string;
+  buyerInn?: string;
+  companyName?: string;
   paymentMethod?: 'uzcard' | 'humo' | 'click' | 'visa' | 'payme' | 'uzum' | 'card' | 'cash' | string;
-  paymentStatus?: 'paid' | 'pending' | 'awaiting_b2b_approval' | 'b2b_approved_unpaid';
+  paymentStatus?: 'paid' | 'pending' | 'unpaid' | 'awaiting_b2b_approval' | 'b2b_approved_unpaid';
   requiresB2bApproval?: boolean;
   paidAt?: string;
   transactionId?: string;

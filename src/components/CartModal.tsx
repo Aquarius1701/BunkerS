@@ -18,7 +18,7 @@ import { CartItem, UserProfile } from '../types';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { CheckoutModal } from './CheckoutModal';
-import { getColorPaletteItem } from './SupplierCabinet';
+import { getColorPaletteItem } from '../lib/colorPalette';
 import { useLanguage } from '../lib/i18n';
 
 interface CartModalProps {

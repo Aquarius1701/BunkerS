@@ -194,6 +194,7 @@ const getPaymentStatusRank = (paymentStatus?: Order['paymentStatus'], requiresB2
       return 1;
     case 'b2b_approved_unpaid':
     case 'unpaid':
+    case 'pending':
       return 2;
     case 'paid':
       return 3;

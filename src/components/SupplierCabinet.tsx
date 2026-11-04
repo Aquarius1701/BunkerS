@@ -85,6 +85,7 @@ import {
 } from '../lib/adminSettings';
 import { useLanguage } from '../lib/i18n';
 import { recordCabinetLog, getLocalCabinetLogs, detectDeviceInfo, CabinetLogItem } from '../lib/cabinetLogs';
+import { getCrmDebtsApi, createCrmDebtApi, recordCrmDebtPaymentApi } from '../lib/api';
 
 interface SupplierCabinetProps {
   currentUser: UserProfile;
@@ -160,58 +161,8 @@ const UNIT_CATEGORIES: UnitCategoryConfig[] = [
   }
 ];
 
-export const PALETTE_32_COLORS = [
-  { name: 'Oq', bg: '#ffffff', text: '#0f172a' },
-  { name: 'Qora', bg: '#0b1120', text: '#ffffff' },
-  { name: 'Kulrang', bg: '#64748b', text: '#ffffff' },
-  { name: 'To‘q kulrang', bg: '#334155', text: '#ffffff' },
-  { name: 'Kumush', bg: '#cbd5e1', text: '#0f172a' },
-  { name: 'Qizil', bg: '#ef4444', text: '#ffffff' },
-  { name: 'To‘q qizil', bg: '#991b1b', text: '#ffffff' },
-  { name: 'Yoqut', bg: '#dc2626', text: '#ffffff' },
-  { name: 'Olovrang', bg: '#ea580c', text: '#ffffff' },
-  { name: 'To‘q sariq', bg: '#f97316', text: '#ffffff' },
-  { name: 'Oltinrang', bg: '#f59e0b', text: '#0f172a' },
-  { name: 'Sariq', bg: '#eab308', text: '#0f172a' },
-  { name: 'Limon', bg: '#facc15', text: '#0f172a' },
-  { name: 'Laym', bg: '#84cc16', text: '#0f172a' },
-  { name: 'Yashil', bg: '#22c55e', text: '#ffffff' },
-  { name: 'Zumrad', bg: '#10b981', text: '#ffffff' },
-  { name: 'To‘q yashil', bg: '#15803d', text: '#ffffff' },
-  { name: 'Zaytun', bg: '#65a30d', text: '#ffffff' },
-  { name: 'Mox', bg: '#4d7c0f', text: '#ffffff' },
-  { name: 'Dengiz to‘lqini', bg: '#14b8a6', text: '#ffffff' },
-  { name: 'Moviy', bg: '#06b6d4', text: '#0f172a' },
-  { name: 'Havorang', bg: '#38bdf8', text: '#0f172a' },
-  { name: 'Ko‘k', bg: '#3b82f6', text: '#ffffff' },
-  { name: 'Qirollik ko‘ki', bg: '#2563eb', text: '#ffffff' },
-  { name: 'To‘q ko‘k', bg: '#1d4ed8', text: '#ffffff' },
-  { name: 'Siniy', bg: '#1e40af', text: '#ffffff' },
-  { name: 'Binafsharang', bg: '#8b5cf6', text: '#ffffff' },
-  { name: 'Siren', bg: '#a855f7', text: '#ffffff' },
-  { name: 'Pushti', bg: '#ec4899', text: '#ffffff' },
-  { name: 'Atirgul', bg: '#f43f5e', text: '#ffffff' },
-  { name: 'Jigarrang', bg: '#78350f', text: '#ffffff' },
-  { name: 'Bej', bg: '#d4b996', text: '#0f172a' }
-];
-
-export function getColorPaletteItem(colorName: string): { name: string; bg: string; text: string } {
-  const norm = (s: string) => s.toLowerCase().replace(/['`‘’ʻʼ]/g, '').trim();
-  const target = norm(colorName);
-  const found = PALETTE_32_COLORS.find((c) => norm(c.name) === target);
-  if (found) return found;
-  if (target.includes('toq kulrang') || target.includes('dark')) return { name: colorName, bg: '#334155', text: '#ffffff' };
-  if (target.includes('kulrang') || target.includes('seriy')) return { name: colorName, bg: '#64748b', text: '#ffffff' };
-  if (target.includes('qora') || target.includes('black')) return { name: colorName, bg: '#0b1120', text: '#ffffff' };
-  if (target.includes('oq') || target.includes('white')) return { name: colorName, bg: '#ffffff', text: '#0f172a' };
-  if (target.includes('qizil') || target.includes('gisht')) return { name: colorName, bg: '#ef4444', text: '#ffffff' };
-  if (target.includes('sariq')) return { name: colorName, bg: '#eab308', text: '#0f172a' };
-  if (target.includes('yashil')) return { name: colorName, bg: '#22c55e', text: '#ffffff' };
-  if (target.includes('kok') || target.includes('moviy') || target.includes('siniy')) return { name: colorName, bg: '#2563eb', text: '#ffffff' };
-  if (target.includes('jigarrang')) return { name: colorName, bg: '#78350f', text: '#ffffff' };
-  if (target.includes('bej') || target.includes('qum')) return { name: colorName, bg: '#d4b996', text: '#0f172a' };
-  return { name: colorName, bg: '#475569', text: '#ffffff' };
-}
+import { PALETTE_32_COLORS, getColorPaletteItem } from '../lib/colorPalette';
+export { PALETTE_32_COLORS, getColorPaletteItem };
 
 export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
   currentUser,
@@ -505,6 +456,25 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
   const [payDebtError, setPayDebtError] = useState<string | null>(null);
 
   useEffect(() => {
+    // 1. Initial load from PostgreSQL backend
+    if (supplierData?.id) {
+      getCrmDebtsApi(supplierData.id)
+        .then((dbDebts) => {
+          if (Array.isArray(dbDebts) && dbDebts.length > 0) {
+            setCrmDebts((prev) => {
+              const dbIds = new Set(dbDebts.map((d: any) => d.id));
+              const localOnly = prev.filter((p) => p && !dbIds.has(p.id));
+              const merged = [...localOnly, ...dbDebts];
+              try {
+                localStorage.setItem('bunkerstroy_crm_debts', JSON.stringify(merged));
+              } catch {}
+              return merged;
+            });
+          }
+        })
+        .catch(() => {});
+    }
+
     const syncDebts = () => {
       try {
         const saved = localStorage.getItem('bunkerstroy_crm_debts');
@@ -517,7 +487,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
       window.removeEventListener('storage', syncDebts);
       window.removeEventListener('bunkerstroy_debts_updated', syncDebts);
     };
-  }, []);
+  }, [supplierData?.id]);
 
   const saveCrmDebtsList = (nextList: CrmDebtRecord[], changedRecord?: CrmDebtRecord) => {
     setCrmDebts(nextList);
@@ -527,6 +497,17 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
     if (changedRecord) {
       try {
         setDoc(doc(db, 'crm_debts', changedRecord.id), changedRecord, { merge: true }).catch(() => {});
+        // Also persist to PostgreSQL backend
+        createCrmDebtApi({
+          supplierId: changedRecord.supplierId || supplierData.id,
+          customerName: changedRecord.customerName,
+          customerPhone: changedRecord.customerPhone,
+          totalOrderAmount: changedRecord.totalOrderAmount,
+          initialPaidAmount: changedRecord.initialPaidAmount || 0,
+          debtAmount: changedRecord.debtAmount,
+          items: changedRecord.items || [],
+          note: changedRecord.note,
+        }).catch(() => {});
       } catch {}
     }
     setTimeout(() => {
@@ -1134,7 +1115,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
     } catch {}
 
     // Admin kabinetiga real vaqtda holat haqida log/hisobot yozish (agar Admin impersonatsiya qilmagan bo'lsa)
-    if (!isImpersonatedByAdmin) {
+    if (!isAdminSession) {
       try {
         const statusLabel =
           nextStatus === 'assigned'
@@ -1867,6 +1848,9 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
       region: supplierData.region,
       phone: supplierData.phone,
       periodLabel,
+      subTab: reportsSubTab === 'pending_debts' ? 'general' : reportsSubTab,
+      commissionRate: supplierData.commissionRate || 0,
+      onlineBunkerCommissionSum,
       nowFormatted,
       generalSalesTotalSum,
       generalSalesCount: generalReportSales.length,
@@ -1874,7 +1858,18 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
       offlineCrmSalesTotalSum,
       generalSupplierNetSum,
       showCommissionColumn: reportsSubTab !== 'offline',
-      dailyGroups: dailyGroupedReportSales,
+      dailyGroups: dailyGroupedReportSales.map((g) => ({
+        ...g,
+        items: g.items.map((sale) => {
+          const comm = getSaleItemBunkerCommission(sale);
+          const net = Math.max(0, (Number(sale.totalSum) || 0) - comm);
+          return {
+            ...sale,
+            commission: comm,
+            net,
+          };
+        }),
+      })),
       getSaleItemBunkerCommission,
       formatBuyerDisplayName,
     });
@@ -2342,21 +2337,33 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
         ? `Yetkazilmoqda${cust.driverPhone ? ` (Bog'lanish uchun tel: ${cust.driverPhone})` : ''}`
         : 'Yetkazilgan';
 
-    downloadCustomerOrderPdfFile({
-      orderIds: cust.orderIds,
-      lastOrderDate: cust.lastOrderDate,
-      statusText,
-      companyName: supplierData.companyName,
-      supplierInn: supplierData.inn,
-      supplierPhone: supplierData.phone,
-      supplierRegion: supplierData.region,
-      customerName: cust.name,
-      customerPhone: cust.phone,
-      customerAddress: cust.address,
-      driverPhone: cust.driverPhone,
-      itemsList: cust.itemsList || [],
-      totalSpent: cust.totalSpent,
-    });
+    downloadCustomerOrderPdfFile(
+      {
+        orderIds: cust.orderIds,
+        lastOrderDate: cust.lastOrderDate,
+        status: statusText,
+        statusText,
+        companyName: supplierData.companyName,
+        supplierInn: supplierData.inn,
+        supplierPhone: supplierData.phone,
+        supplierRegion: supplierData.region,
+        customerName: cust.name,
+        name: cust.name,
+        phone: cust.phone,
+        address: cust.address,
+        customerPhone: cust.phone,
+        customerAddress: cust.address,
+        driverPhone: cust.driverPhone,
+        itemsList: cust.itemsList || [],
+        totalSpent: cust.totalSpent,
+      },
+      {
+        companyName: supplierData.companyName,
+        inn: supplierData.inn,
+        phone: supplierData.phone,
+        region: supplierData.region,
+      }
+    );
   };
 
   // Generate & Download PDF Cargo Manifest & Supplier Company Info (.pdf)
@@ -9408,13 +9415,16 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
               ) : (
                 <div className="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1">
                   {filteredLogs.map((logItem) => {
+                    const itemAction = logItem.action || logItem.actionType;
+                    const itemTitle = logItem.actionLabel || logItem.title || 'Log yozuvi';
+                    const itemDevice = logItem.device || logItem.deviceName || 'Noma’lum qurilma';
                     const isAdminLog = Boolean(
                       logItem.isAdminSession ||
-                        logItem.actionType === 'admin_enter' ||
-                        logItem.actionType === 'admin_exit' ||
-                        logItem.actionType === 'admin_nav' ||
-                        logItem.actionType === 'admin_action' ||
-                        logItem.actionType === 'admin_input'
+                        itemAction === 'admin_enter' ||
+                        itemAction === 'admin_exit' ||
+                        itemAction === 'admin_nav' ||
+                        itemAction === 'admin_action' ||
+                        itemAction === 'admin_input'
                     );
                     return (
                       <div
@@ -9431,19 +9441,19 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
                               className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${
                                 isAdminLog
                                   ? 'bg-fuchsia-500 text-white border-fuchsia-200'
-                                  : logItem.actionType === 'password_change'
+                                  : itemAction === 'password_change'
                                   ? 'bg-amber-500/20 text-amber-300 border-amber-400/50'
                                   : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50'
                               }`}
                             >
                               {isAdminLog
                                 ? `ADMIN: ${logItem.adminActor || 'Admin'}`
-                                : logItem.actionType === 'password_change'
+                                : itemAction === 'password_change'
                                 ? 'Parol yangilandi'
                                 : 'Kabinetga kirish'}
                             </span>
                             <span className="font-black text-white text-xs sm:text-sm">
-                              {logItem.title}
+                              {itemTitle}
                             </span>
                           </div>
                           <span className="font-mono text-[11px] font-bold text-[#FFB800]">
@@ -9452,7 +9462,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
                         </div>
                         <p className="text-xs text-sky-100 leading-relaxed">{logItem.details}</p>
                         <div className="flex flex-wrap items-center gap-3 pt-1 text-[10px] font-mono text-sky-300">
-                          <span>Qurilma: <strong className="text-white">{logItem.deviceName}</strong></span>
+                          <span>Qurilma: <strong className="text-white">{itemDevice}</strong></span>
                           <span>Brauzer: <strong className="text-white">{logItem.browser}</strong></span>
                           <span>Tizim: <strong className="text-white">{logItem.os}</strong></span>
                         </div>

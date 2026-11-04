@@ -37,7 +37,7 @@ import {
 import { Product, UserProfile } from '../types';
 import { REGIONS_AND_DISTRICTS } from '../data/regionsData';
 import { getProductTypes, ProductTypeItem, getManufacturers, isCabinetCompanyName } from '../data/productTypes';
-import { getColorPaletteItem } from './SupplierCabinet';
+import { getColorPaletteItem } from '../lib/colorPalette';
 import { recordProductSearchQuery } from '../data/supplierReportsData';
 
 interface MarketplaceProps {

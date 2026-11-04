@@ -1,17 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { protobufFetch as fetch } from './lib/protobufClient';
 import { Navbar } from './components/Navbar';
 import { Marketplace } from './components/Marketplace';
-import { LogisticsHub } from './components/LogisticsHub';
-import { OrdersView } from './components/OrdersView';
 import { CartModal } from './components/CartModal';
 import { AuthModal } from './components/AuthModal';
 import { OrderSuccessModal } from './components/OrderSuccessModal';
-import { AdminCabinet } from './components/AdminCabinet';
-import { BunkerAdminCabinet } from './components/BunkerAdminCabinet';
-import { SupplierCabinet } from './components/SupplierCabinet';
-import { CabinetLogsModal } from './components/CabinetLogsModal';
-import { GlobalBunkerHub } from './components/GlobalBunkerHub';
+
+const LogisticsHub = React.lazy(() =>
+  import('./components/LogisticsHub').then((m) => ({ default: m.LogisticsHub })),
+);
+const OrdersView = React.lazy(() =>
+  import('./components/OrdersView').then((m) => ({ default: m.OrdersView })),
+);
+const AdminCabinet = React.lazy(() =>
+  import('./components/AdminCabinet').then((m) => ({ default: m.AdminCabinet })),
+);
+const BunkerAdminCabinet = React.lazy(() =>
+  import('./components/BunkerAdminCabinet').then((m) => ({
+    default: m.BunkerAdminCabinet,
+  })),
+);
+const SupplierCabinet = React.lazy(() =>
+  import('./components/SupplierCabinet').then((m) => ({
+    default: m.SupplierCabinet,
+  })),
+);
+const CabinetLogsModal = React.lazy(() =>
+  import('./components/CabinetLogsModal').then((m) => ({
+    default: m.CabinetLogsModal,
+  })),
+);
+const GlobalBunkerHub = React.lazy(() =>
+  import('./components/GlobalBunkerHub').then((m) => ({
+    default: m.GlobalBunkerHub,
+  })),
+);
+
+const ViewLoadingSpinner = () => (
+  <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3 py-16">
+    <div className="w-10 h-10 border-4 border-[#FFB800] border-t-transparent rounded-full animate-spin" />
+    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      Sahifa yuklanmoqda...
+    </span>
+  </div>
+);
 import { Product, CartItem, UserProfile, Order, LogisticsVehicle, SubAdminCabinetAccount, SupplierPartner } from './types';
 import { INITIAL_PRODUCTS, INITIAL_VEHICLES, MOCK_FAKE_PRODUCT_IDS, MOCK_FAKE_SUPPLIER_IDS } from './data/mockData';
 import { isOrderAfterReset, DEFAULT_STATS_RESET_CUTOFF_MS, pickMoreAdvancedOrder, saveOrdersToStorageSafe } from './data/supplierReportsData';
@@ -23,50 +55,15 @@ import { getAdminConfig, AdminConfig, getSubAdmins, BUNKER_ADMIN_CREDENTIALS, ge
 import { sendCabinetDeviceHeartbeat, releaseCabinetDeviceLock } from './lib/securityGuard';
 import { RealTelegramLogo, RealInstagramLogo, RealYouTubeLogo, RealPhoneLogo } from './components/SocialLogos';
 import { initDomLanguageTranslator, useLanguage, hasUserSelectedLanguage, AppLanguage } from './lib/i18n';
-
-// Platformani to'liq 0 holatga keltirish (barcha mahsulotlar, kabinetlar, buyurtmalar, loglar va qoldiqlar 0 holatdan boshlanadi)
-try {
-  if (typeof window !== 'undefined' && localStorage.getItem('bunkerstroy_platform_zero_reset_v10') !== 'done') {
-    localStorage.setItem('bunkerstroy_products', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_suppliers', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_sub_admins_v1', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_vehicles', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_global_partners', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_customers', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_orders', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_b2b_orders', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_transactions', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_logs', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_cabinet_logs', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_search_queries', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_ack_req_problems', JSON.stringify([]));
-    localStorage.setItem('bunkerstroy_product_types', JSON.stringify([]));
-    localStorage.removeItem('bunkerstroy_cart');
-    localStorage.removeItem('bunkerstroy_supplier_seen_orders');
-    localStorage.removeItem('bunkerstroy_admin_locked');
-    localStorage.removeItem('bunkerstroy_single_admin_config_v2');
-    localStorage.removeItem('bunkerstroy_bunker_admin_creds_v1');
-    localStorage.removeItem('bunkerstroy_active_user');
-    localStorage.setItem('bunkerstroy_active_tab', 'marketplace');
-    localStorage.setItem('bunkerstroy_stats_cutoff_ms', String(Date.now()));
-    localStorage.setItem('bunkerstroy_platform_zero_reset_v10', 'done');
-  }
-  // Hozirgi mavjud foydalanuvchi (mijoz) kabinetlarni o'chirish
-  if (typeof window !== 'undefined' && localStorage.getItem('bunkerstroy_purge_customers_v12') !== 'done') {
-    localStorage.setItem('bunkerstroy_customers', JSON.stringify([]));
-    try {
-      const rawActive = localStorage.getItem('bunkerstroy_active_user');
-      if (rawActive) {
-        const parsedActive = JSON.parse(rawActive);
-        if (parsedActive && parsedActive.role !== 'bunker_admin' && parsedActive.role !== 'admin' && parsedActive.role !== 'supplier') {
-          localStorage.removeItem('bunkerstroy_active_user');
-          localStorage.setItem('bunkerstroy_active_tab', 'marketplace');
-        }
-      }
-    } catch {}
-    localStorage.setItem('bunkerstroy_purge_customers_v12', 'done');
-  }
-} catch {}
+import {
+  getProductsApi,
+  getSuppliersApi,
+  getOrdersApi,
+  getLogisticsVehiclesApi,
+  createProductApi,
+  updateProductApi,
+  deleteProductApi,
+} from './lib/api';
 
 export default function App() {
   const { lang, setLang } = useLanguage();
@@ -323,7 +320,7 @@ export default function App() {
     try {
       const savedSupps = localStorage.getItem('bunkerstroy_suppliers');
       const suppList: any[] = savedSupps ? JSON.parse(savedSupps) : [];
-      if (!Array.isArray(suppList) || suppList.length === 0) return [];
+      if (!Array.isArray(suppList) || suppList.length === 0) return products;
       return products.filter((p) => {
         if (!p || !p.id) return false;
         return suppList.some(
@@ -458,6 +455,46 @@ export default function App() {
     }
   }, [products]);
 
+  // Load real PostgreSQL data on platform start
+  useEffect(() => {
+    let isMounted = true;
+    async function loadBackendData() {
+      try {
+        const [dbProducts, dbSuppliers, dbOrders, dbVehicles] = await Promise.all([
+          getProductsApi(),
+          getSuppliersApi(),
+          getOrdersApi(),
+          getLogisticsVehiclesApi(),
+        ]);
+
+        if (!isMounted) return;
+
+        if (Array.isArray(dbSuppliers) && dbSuppliers.length > 0) {
+          localStorage.setItem('bunkerstroy_suppliers', JSON.stringify(dbSuppliers));
+        }
+
+        if (Array.isArray(dbProducts) && dbProducts.length > 0) {
+          setProducts(dbProducts);
+          localStorage.setItem('bunkerstroy_products', JSON.stringify(dbProducts));
+        }
+
+        if (Array.isArray(dbOrders) && dbOrders.length > 0) {
+          setOrders(dbOrders);
+        }
+
+        if (Array.isArray(dbVehicles) && dbVehicles.length > 0) {
+          setVehicles(dbVehicles);
+        }
+      } catch (err) {
+        console.warn('Initial backend fetch fallback:', err);
+      }
+    }
+    loadBackendData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Test Firebase connection & sync real products and orders
   useEffect(() => {
     testConnection();
@@ -503,7 +540,7 @@ export default function App() {
                     String(s.companyName).trim().toLowerCase() === String(data.supplierName).trim().toLowerCase()))
             );
 
-          if (needFullZeroReset || (data && data.id && MOCK_FAKE_PRODUCT_IDS.includes(data.id)) || !hasOwnerSupplier) {
+          if (data && data.id && MOCK_FAKE_PRODUCT_IDS.includes(data.id)) {
             deleteDoc(doc(db, 'products', d.id)).catch(() => {});
           } else if (data && data.id) {
             fetched.push(data);
@@ -532,7 +569,11 @@ export default function App() {
           return [...localOnly, ...fetched];
         });
       },
-      () => {}
+      () => {
+        try {
+          unsubscribeProducts();
+        } catch {}
+      }
     );
 
     // One-time cleanup of old customer users in Firestore
@@ -549,7 +590,11 @@ export default function App() {
           localStorage.setItem('bunkerstroy_firestore_customers_purge_v12', 'done');
           unsubUsers();
         },
-        () => {}
+        () => {
+          try {
+            unsubUsers();
+          } catch {}
+        }
       );
     }
 
@@ -595,7 +640,11 @@ export default function App() {
           setOrders(fetched);
         }
       },
-      () => {}
+      () => {
+        try {
+          unsubscribeProducts();
+        } catch {}
+      }
     );
 
     return () => {
@@ -782,6 +831,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col font-sans bg-white text-[#374151] selection:bg-[#FFB800] selection:text-[#374151] transition-colors duration-300">
+      <Suspense fallback={<ViewLoadingSpinner />}>
       
       {activeTab === 'bunker_admin' && user?.role === 'bunker_admin' ? (
         <BunkerAdminCabinet
@@ -868,30 +918,45 @@ export default function App() {
           <SupplierCabinet
             currentUser={user}
             products={products}
-            onAddProduct={(newProd) => {
+            onAddProduct={async (newProd) => {
               const cleanProd: Product = JSON.parse(JSON.stringify(newProd));
-              setProducts((prev) => {
-                const next = [cleanProd, ...prev.filter((p) => p.id !== cleanProd.id)];
-                try {
-                  localStorage.setItem('bunkerstroy_products', JSON.stringify(next));
-                } catch {}
-                return next;
-              });
+              const isExisting = products.some((p) => p.id === cleanProd.id);
               try {
-                setDoc(doc(db, 'products', cleanProd.id), cleanProd, { merge: true }).catch(() => {});
-              } catch {}
+                if (isExisting) {
+                  await updateProductApi(cleanProd.id, cleanProd);
+                } else {
+                  await createProductApi(cleanProd);
+                }
+                setProducts((prev) => {
+                  const next = [cleanProd, ...prev.filter((p) => p.id !== cleanProd.id)];
+                  try {
+                    localStorage.setItem('bunkerstroy_products', JSON.stringify(next));
+                  } catch {}
+                  return next;
+                });
+                try {
+                  setDoc(doc(db, 'products', cleanProd.id), cleanProd, { merge: true }).catch(() => {});
+                } catch {}
+              } catch (err) {
+                console.error('Mahsulotni saqlashda server xatoligi:', err);
+              }
             }}
-            onDeleteProduct={(id) => {
-              setProducts((prev) => {
-                const next = prev.filter((p) => p.id !== id);
-                try {
-                  localStorage.setItem('bunkerstroy_products', JSON.stringify(next));
-                } catch {}
-                return next;
-              });
+            onDeleteProduct={async (id) => {
               try {
-                deleteDoc(doc(db, 'products', id)).catch(() => {});
-              } catch {}
+                await deleteProductApi(id);
+                setProducts((prev) => {
+                  const next = prev.filter((p) => p.id !== id);
+                  try {
+                    localStorage.setItem('bunkerstroy_products', JSON.stringify(next));
+                  } catch {}
+                  return next;
+                });
+                try {
+                  deleteDoc(doc(db, 'products', id)).catch(() => {});
+                } catch {}
+              } catch (err) {
+                console.error('Mahsulotni o‘chirishda server xatoligi:', err);
+              }
             }}
             onGoToShop={() => setActiveTab('marketplace')}
             onLogout={handleLogout}
@@ -1227,7 +1292,7 @@ export default function App() {
           </div>
         </div>
       )}
-
+      </Suspense>
     </div>
   );
 }

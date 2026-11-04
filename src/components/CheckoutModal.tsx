@@ -36,6 +36,7 @@ import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { recordCabinetLog } from '../lib/cabinetLogs';
 import { InteractiveDeliveryMap } from './InteractiveDeliveryMap';
+import { createOrderApi } from '../lib/api';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -1033,8 +1034,34 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         console.warn('LocalStorage error:', locErr);
       }
 
-      // Persist all created orders to Firestore
+      // Persist all created orders to backend & Firestore
       for (const ord of createdOrders) {
+        try {
+          const apiRes = await createOrderApi({
+            buyerName: ord.buyerName,
+            buyerPhone: ord.buyerPhone,
+            deliveryAddress: ord.deliveryAddress,
+            destinationRegion: ord.deliveryRegion || region,
+            paymentMethod: ord.paymentMethod,
+            items: ord.items.map((i: any) => ({
+              productId: i.productId || i.id,
+              quantity: i.quantity,
+              price: i.price,
+            })),
+            vehicleType: ord.vehicleType,
+            buyerType: user?.userType || 'individual',
+            buyerInn: user?.inn,
+            companyName: user?.companyName,
+          });
+          if (apiRes && apiRes.data) {
+            ord.id = apiRes.data.id;
+            ord.totalAmount = apiRes.data.totalAmount;
+            (ord as any).escrowSplit = (apiRes.data as any).escrowSplit;
+          }
+        } catch (apiErr) {
+          console.warn('Backend createOrderApi sync notice:', apiErr);
+        }
+
         try {
           await setDoc(doc(db, 'orders', ord.id), ord);
         } catch (fsErr) {

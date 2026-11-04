@@ -599,7 +599,6 @@ const EXACT_DICTIONARY: Record<string, string> = {
   "Tasdiqlash va Bunkerga chiqarish": "Подтвердить и опубликовать в Bunker",
   "Parol bilan tasdiqlash:": "Подтверждение паролем:",
   "Mahsulotni Bunkerga chiqarish uchun kabinet parolini kiriting:": "Введите пароль кабинета для публикации товара в Bunker:",
-  "Kabinet parolini kiriting...": "Введите пароль кабинета...",
   "Saqlash (Oflayn mahsulot)": "Сохранить (Офлайн товар)",
   "O‘zgarishlarni Saqlash": "Сохранить изменения",
 

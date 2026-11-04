@@ -209,7 +209,7 @@ export const VoiceAssistantModal: React.FC<VoiceAssistantModalProps> = ({ isOpen
         wsRef.current.send(
           encodeProtobufPacket({
             audio: base64Audio,
-          })
+          }) as any
         );
       };
 
@@ -280,7 +280,7 @@ export const VoiceAssistantModal: React.FC<VoiceAssistantModalProps> = ({ isOpen
     if (!check.valid) return;
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       setTranscripts((prev) => [...prev, { sender: 'user', text: check.sanitized }]);
-      wsRef.current.send(encodeProtobufPacket({ text: check.sanitized }));
+      wsRef.current.send(encodeProtobufPacket({ text: check.sanitized }) as any);
     }
   };
 

@@ -1,0 +1,72 @@
+services:
+  # ============================================================================
+  # PostgreSQL 16 ACID Database
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: bunkers_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: bunkers_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bunkers_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Redis 7 In-Memory Caching & Session Store
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: bunkers_redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-bunkers_redis_2026}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # BunkerS NestJS Enterprise Core Application
+  # ============================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bunkers_app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/bunkers_db?schema=public"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-bunkers_redis_2026}@redis:6379"
+      JWT_SECRET: ${JWT_SECRET:-bunkerstroy-enterprise-jwt-super-secret-key-2026}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-7d}
+      SESSION_SECRET: ${SESSION_SECRET:-bunkerstroy-vpc-aes256gcm-argon2id-master-key}
+      OTP_HMAC_SECRET: ${OTP_HMAC_SECRET:-bunkerstroy-otp-hmac-sha256-secure-secret-key}
+      PAYME_SECRET_KEY: ${PAYME_SECRET_KEY:-bunkerstroy_payme_secret_key_2026}
+      CLICK_SECRET_KEY: ${CLICK_SECRET_KEY:-bunkerstroy_click_secret_key_2026}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+  redis_data:

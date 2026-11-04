@@ -1,0 +1,331 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================================
+// 1. USER & AUTHENTICATION
+// ============================================================================
+model User {
+  id                  String    @id @default(uuid())
+  email               String?   @unique
+  phone               String?   @unique
+  displayName         String
+  firstName           String?
+  lastName            String?
+  userType            String    @default("individual") // individual | legal
+  role                String    @default("customer")   // individual | legal | customer | contractor | logistics_driver | specialist | admin | bunker_admin | supplier
+  passwordHash        String?
+  companyName         String?
+  inn                 String?
+  region              String?
+  district            String?
+  mahalla             String?
+  cabinetType         String?   // manufacturer | partner
+  contractNumber      String?
+  mustChangePassword  Boolean   @default(false)
+  isSubAdmin          Boolean   @default(false)
+  subAdminPermissions String[]  @default([])
+  photoURL            String?
+  verificationStatus  String    @default("verified")   // pending | verified | rejected
+  status              String    @default("active")     // active | blocked | pending
+  eimzoVerifiedAt     DateTime?
+  eimzoSerialNumber   String?
+  idCardNumber        String?
+  birthDate           String?
+  pinfl               String?
+  address             String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  orders              Order[]
+  createdProducts     Product[] @relation("ProductAuthor")
+  supplierProfile     Supplier? @relation("UserSupplier")
+
+  @@index([role])
+  @@index([phone])
+  @@index([inn])
+}
+
+// ============================================================================
+// 2. SUPPLIER & FACTORY (ZAVOD VA DO'KONLAR)
+// ============================================================================
+model Supplier {
+  id                  String    @id @default(uuid())
+  userId              String?   @unique
+  user                User?     @relation("UserSupplier", fields: [userId], references: [id], onDelete: SetNull)
+  cabinetType         String    @default("partner") // manufacturer | partner
+  inn                 String    @unique
+  name                String?
+  surname             String?
+  companyName         String
+  phone               String
+  secondaryPhone      String?
+  email               String?
+  login               String    @unique
+  passwordHash        String
+  emergencyPasswordHash String?
+  region              String
+  district            String?
+  category            String    @default("Qurilish mollari")
+  status              String    @default("active")  // active | blocked | pending
+  rating              Float     @default(5.0)
+  contractNumber      String?
+  contractPdfData     String?   @db.Text
+  allowPromoVideo     Boolean   @default(false)
+  commissionRate      Float     @default(1.5)
+  commissionBasis     String    @default("total")   // total | profit
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  lastLoginAt         DateTime?
+
+  products            Product[]
+  crmDebts            CrmDebtRecord[]
+  b2bOrdersBought     B2BOrderRequest[] @relation("BuyerSupplier")
+  b2bOrdersSold       B2BOrderRequest[] @relation("ManufacturerSupplier")
+
+  @@index([cabinetType])
+  @@index([inn])
+  @@index([region])
+  @@index([status, cabinetType])
+}
+
+// ============================================================================
+// 3. CATALOG & PRODUCTS
+// ============================================================================
+model Product {
+  id                      String    @id @default(uuid())
+  title                   String
+  category                String
+  price                   Float
+  originalPrice           Float?
+  costPrice               Float?
+  initialStock            Int       @default(100)
+  unit                    String    @default("dona") // qop (50kg) | tonna | dona | m² | m³ | rulon | metr
+  saleChannel             String    @default("online") // online | offline
+  supplierId              String?
+  supplier                Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  authorId                String?
+  author                  User?     @relation("ProductAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  supplierInn             String?
+  supplierName            String
+  manufacturerName        String?
+  supplierCabinetType     String?
+  stock                   Int       @default(100)
+  unlimitedStock          Boolean   @default(false)
+  minOrder                Int       @default(1)
+  energyEfficiencyRating  String    @default("Standart") // A++ | A+ | A | B | Standart
+  isEscoCertified         Boolean   @default(false)
+  image                   String
+  images                  String[]  @default([])
+  description             String    @db.Text
+  repairType              String    @default("universal") // ichki | tashqi | ishchi_kuchi | asbob_uskunalar | texnika_ijarasi | universal
+  itemType                String    @default("material")  // material | labor | tool | rental
+  region                  String?
+  district                String?
+  salesCount              Int       @default(0)
+  viewsCount              Int       @default(0)
+  hasDelivery             Boolean   @default(true)
+  hasBonus                Boolean   @default(false)
+  bonusDescription        String?
+  bonusThreshold          Float?
+  bonusAmount             Float?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  variants                ProductVariant[]
+  orderItems              OrderItem[]
+
+  @@index([category])
+  @@index([supplierId])
+  @@index([price])
+  @@index([category, saleChannel])
+  @@index([category, price])
+}
+
+model ProductVariant {
+  id              String   @id @default(uuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  unit            String
+  colors          String[] @default([])
+  specification   String
+  price           Float
+  originalPrice   Float
+  costPrice       Float?
+  minOrder        Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([productId])
+}
+
+// ============================================================================
+// 4. ORDERS & ESCROW TRANSACTIONS
+// ============================================================================
+model Order {
+  id                  String      @id @default(uuid())
+  orderChannel        String      @default("online") // online | offline
+  buyerId             String
+  buyer               User        @relation(fields: [buyerId], references: [id])
+  buyerName           String
+  buyerPhone          String
+  totalAmount         Float
+  status              String      @default("pending") // pending | confirmed | assigned | in_transit | delivered | cancelled
+  driverPhone         String?
+  driverName          String?
+  deliveryAddress     String
+  deliveryRegion      String?
+  deliveryDistrict    String?
+  deliveryStreet      String?
+  deliveryLandmark    String?
+  recipientName       String?
+  recipientPhone      String?
+  paymentMethod       String      @default("card") // uzcard | humo | click | visa | payme | uzum | card | cash | escrow
+  paymentStatus       String      @default("pending") // paid | pending | awaiting_b2b_approval | b2b_approved_unpaid
+  requiresB2bApproval Boolean     @default(false)
+  paidAt              DateTime?
+  transactionId       String?
+  deliveryLat         Float?
+  deliveryLng         Float?
+  vehicleType         String      @default("samosval")
+  escrowMode          String      @default("split_50_50") // full_100 | split_50_50
+  escrowFirstPart     Float?
+  escrowSecondPart    Float?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  items               OrderItem[]
+
+  @@index([buyerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([buyerId, status])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id            String   @id @default(uuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  title         String
+  quantity      Int
+  unit          String
+  price         Float
+  totalSum      Float
+  category      String?
+  supplierId    String?
+  supplierInn   String?
+  supplierName  String?
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([supplierId])
+}
+
+// ============================================================================
+// 5. CRM POS & NASIYA DAFTARI (DEBT BOOK)
+// ============================================================================
+model CrmDebtRecord {
+  id                  String    @id @default(uuid())
+  supplierId          String
+  supplier            Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierInn         String?
+  supplierCompanyName String
+  basketName          String?
+  customerName        String
+  customerPhone       String
+  itemsJson           String    @db.Text
+  totalOrderAmount    Float
+  initialPaidAmount   Float     @default(0)
+  debtAmount          Float
+  paidDebtAmount      Float     @default(0)
+  remainingDebtAmount Float
+  status              String    @default("pending") // pending | paid
+  note                String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  paidAt              DateTime?
+
+  @@index([supplierId])
+  @@index([customerPhone])
+  @@index([status])
+}
+
+// ============================================================================
+// 6. B2B FACTORY WHOLESALE PROCUREMENT
+// ============================================================================
+model B2BOrderRequest {
+  id                        String    @id @default(uuid())
+  buyerSupplierId           String
+  buyerSupplier             Supplier  @relation("BuyerSupplier", fields: [buyerSupplierId], references: [id], onDelete: Cascade)
+  buyerCompanyName          String
+  buyerInn                  String
+  buyerDirector             String?
+  buyerPhone                String
+  buyerRegion               String
+  buyerAddress              String?
+  manufacturerId            String?
+  manufacturerSupplier      Supplier? @relation("ManufacturerSupplier", fields: [manufacturerId], references: [id], onDelete: SetNull)
+  manufacturerInn           String?
+  manufacturerCompanyName   String
+  manufacturerPhone         String?
+  itemsJson                 String    @db.Text
+  totalAmount               Float
+  status                    String    @default("requested") // requested | approved_awaiting_payment | paid | preparing | in_transit | paid_shipped | delivered
+  bankAccountDetails        String?
+  driverPhone               String?
+  createdAt                 DateTime  @default(now())
+  approvedAt                DateTime?
+  paidAt                    DateTime?
+  shippedAt                 DateTime?
+
+  @@index([buyerSupplierId])
+  @@index([manufacturerId])
+  @@index([status])
+}
+
+// ============================================================================
+// 7. HEAVY LOGISTICS & FLEET
+// ============================================================================
+model LogisticsVehicle {
+  id              String   @id @default(uuid())
+  name            String
+  type            String   // samosval | mikser | kran_manipulyator | gazel | fura
+  capacityTons    Float
+  pricePerKm      Float
+  basePrice       Float
+  available       Boolean  @default(true)
+  driverName      String
+  phone           String
+  currentLocation String
+  image           String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([type])
+  @@index([available])
+}
+
+// ============================================================================
+// 8. AUDIT LOGS & SYSTEM ACTIVITY
+// ============================================================================
+model SystemLog {
+  id        String   @id @default(uuid())
+  action    String
+  actor     String
+  category  String   // add_cabinet | edit_cabinet | delete_cabinet | auth_access | emergency_pass | orders_sales | supplier | auth | cabinet | product | system
+  details   String   @db.Text
+  timestamp DateTime @default(now())
+  ip        String?
+  level     String   @default("info") // info | warning | error | success
+
+  @@index([category])
+  @@index([timestamp])
+}
