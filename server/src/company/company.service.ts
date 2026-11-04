@@ -6,8 +6,8 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { defaultCompanyLookupService, CompanyLookupService } from '../../services/companyLookup/CompanyLookupService';
-import { defaultEImzoService } from '../../services/eimzo/EImzoService';
+import { defaultCompanyLookupService, CompanyLookupService } from './services/companyLookup/CompanyLookupService';
+import { defaultEImzoService } from './services/eimzo/EImzoService';
 import { RegisterMchjDto } from './dto/register-mchj.dto';
 import { VerifyEImzoDto } from './dto/verify-eimzo.dto';
 

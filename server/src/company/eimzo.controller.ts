@@ -9,7 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { defaultEImzoService } from '../../services/eimzo/EImzoService';
+import { defaultEImzoService } from './services/eimzo/EImzoService';
 import { CompanyService } from './company.service';
 import { VerifyEImzoDto } from './dto/verify-eimzo.dto';
 

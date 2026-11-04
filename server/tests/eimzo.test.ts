@@ -1,4 +1,4 @@
-import { EImzoService, CHALLENGE_TTL_MS } from '../services/eimzo/EImzoService';
+import { EImzoService, CHALLENGE_TTL_MS } from '../src/company/services/eimzo/EImzoService';
 
 export async function runEImzoTests() {
   console.log('\n========================================');

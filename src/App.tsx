@@ -1,37 +1,37 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { protobufFetch as fetch } from './lib/protobufClient';
-import { Navbar } from './components/Navbar';
-import { Marketplace } from './components/Marketplace';
-import { CartModal } from './components/CartModal';
-import { AuthModal } from './components/AuthModal';
-import { OrderSuccessModal } from './components/OrderSuccessModal';
+import { Navbar } from './components/common/Navbar';
+import { Marketplace } from './components/views/Marketplace';
+import { CartModal } from './components/modals/CartModal';
+import { AuthModal } from './components/modals/AuthModal';
+import { OrderSuccessModal } from './components/modals/OrderSuccessModal';
 
 const LogisticsHub = React.lazy(() =>
-  import('./components/LogisticsHub').then((m) => ({ default: m.LogisticsHub })),
+  import('./components/cabinets/LogisticsHub').then((m) => ({ default: m.LogisticsHub })),
 );
 const OrdersView = React.lazy(() =>
-  import('./components/OrdersView').then((m) => ({ default: m.OrdersView })),
+  import('./components/views/OrdersView').then((m) => ({ default: m.OrdersView })),
 );
 const AdminCabinet = React.lazy(() =>
-  import('./components/AdminCabinet').then((m) => ({ default: m.AdminCabinet })),
+  import('./components/cabinets/AdminCabinet').then((m) => ({ default: m.AdminCabinet })),
 );
 const BunkerAdminCabinet = React.lazy(() =>
-  import('./components/BunkerAdminCabinet').then((m) => ({
+  import('./components/cabinets/BunkerAdminCabinet').then((m) => ({
     default: m.BunkerAdminCabinet,
   })),
 );
 const SupplierCabinet = React.lazy(() =>
-  import('./components/SupplierCabinet').then((m) => ({
+  import('./components/cabinets/SupplierCabinet').then((m) => ({
     default: m.SupplierCabinet,
   })),
 );
 const CabinetLogsModal = React.lazy(() =>
-  import('./components/CabinetLogsModal').then((m) => ({
+  import('./components/modals/CabinetLogsModal').then((m) => ({
     default: m.CabinetLogsModal,
   })),
 );
 const GlobalBunkerHub = React.lazy(() =>
-  import('./components/GlobalBunkerHub').then((m) => ({
+  import('./components/cabinets/GlobalBunkerHub').then((m) => ({
     default: m.GlobalBunkerHub,
   })),
 );
@@ -53,7 +53,7 @@ import { doc, setDoc, deleteDoc, collection, onSnapshot } from 'firebase/firesto
 import { HardHat, ShieldCheck, Truck, Phone, Mail, MapPin, ShieldAlert, ArrowLeft } from 'lucide-react';
 import { getAdminConfig, AdminConfig, getSubAdmins, BUNKER_ADMIN_CREDENTIALS, getBunkerAdminCredentials } from './lib/adminSettings';
 import { sendCabinetDeviceHeartbeat, releaseCabinetDeviceLock } from './lib/securityGuard';
-import { RealTelegramLogo, RealInstagramLogo, RealYouTubeLogo, RealPhoneLogo } from './components/SocialLogos';
+import { RealTelegramLogo, RealInstagramLogo, RealYouTubeLogo, RealPhoneLogo } from './components/common/SocialLogos';
 import { initDomLanguageTranslator, useLanguage, hasUserSelectedLanguage, AppLanguage } from './lib/i18n';
 import {
   getProductsApi,

@@ -1,7 +1,7 @@
-import { CompanyLookupService } from '../services/companyLookup/CompanyLookupService';
-import { MockCompanyProvider } from '../services/companyLookup/MockCompanyProvider';
-import { CompanyCache } from '../services/companyLookup/CompanyCache';
-import { IpRateLimiter } from '../middlewares/rateLimiter';
+import { CompanyLookupService } from '../src/company/services/companyLookup/CompanyLookupService';
+import { MockCompanyProvider } from '../src/company/services/companyLookup/MockCompanyProvider';
+import { CompanyCache } from '../src/company/services/companyLookup/CompanyCache';
+import { IpRateLimiter } from '../src/common/middlewares/rate-limiter.middleware';
 
 /**
  * Rangli konsol chiqarish yordamchilari
