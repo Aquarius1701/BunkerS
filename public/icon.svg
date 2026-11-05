@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F2547"/>
+      <stop offset="100%" stop-color="#071326"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD043"/>
+      <stop offset="100%" stop-color="#FFB800"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E3E7B"/>
+      <stop offset="100%" stop-color="#0F2547"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#FFB800" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)"/>
+  
+  <!-- Outer Fortress Border -->
+  <rect x="12" y="12" width="488" height="488" rx="98" fill="none" stroke="#254B85" stroke-width="6" stroke-opacity="0.8"/>
+
+  <!-- Inner shield plate -->
+  <path d="M256 64 L416 120 V256 C416 352 256 432 256 432 C256 432 96 352 96 256 V120 Z" fill="url(#shieldGrad)" stroke="#2D5A9E" stroke-width="4"/>
+
+  <!-- Construction HardHat Emblem inside Shield -->
+  <g transform="translate(136, 140) scale(10)" filter="url(#glow)">
+    <!-- HardHat top ridge -->
+    <path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5" fill="none" stroke="url(#goldGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- HardHat dome right -->
+    <path d="M14 6a6 6 0 0 1 6 6v3" fill="none" stroke="url(#goldGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- HardHat dome left -->
+    <path d="M4 15v-3a6 6 0 0 1 6-6" fill="none" stroke="url(#goldGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- HardHat brim -->
+    <rect x="2" y="15" width="20" height="4" rx="1" fill="#FFB800" stroke="#FFE082" stroke-width="1.2"/>
+  </g>
+
+  <!-- Stylized BUNKER STROY Sub-Emblem -->
+  <text x="256" y="388" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-weight="900" font-size="34" letter-spacing="4" text-anchor="middle" fill="#FFFFFF">
+    BUNKER<tspan fill="#FFB800">STROY</tspan>
+  </text>
+</svg>

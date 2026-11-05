@@ -28,3 +28,6 @@ export * from './cabinets/SupplierCabinet';
 // Views & Pages
 export * from './views/Marketplace';
 export * from './views/OrdersView';
+
+// Progressive Web App (PWA)
+export * from './pwa';

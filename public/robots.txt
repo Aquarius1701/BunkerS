@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /server/
+
+Sitemap: https://bunkerstroy.uz/sitemap.xml

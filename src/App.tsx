@@ -64,6 +64,7 @@ import {
   updateProductApi,
   deleteProductApi,
 } from './lib/api';
+import { OfflineIndicator, PwaInstallPrompt, PwaReloadPrompt } from './components/pwa';
 
 export default function App() {
   const { lang, setLang } = useLanguage();
@@ -832,6 +833,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col font-sans bg-white text-[#374151] selection:bg-[#FFB800] selection:text-[#374151] transition-colors duration-300">
+      {/* Real-time Network Offline / Online Indicator */}
+      <OfflineIndicator />
+
       <Suspense fallback={<ViewLoadingSpinner />}>
       
       {activeTab === 'bunker_admin' && user?.role === 'bunker_admin' ? (
@@ -1294,6 +1298,10 @@ export default function App() {
         </div>
       )}
       </Suspense>
+
+      {/* PWA Prompts: Install CTA banner & Service Worker Update Toast */}
+      <PwaInstallPrompt />
+      <PwaReloadPrompt />
     </div>
   );
 }
