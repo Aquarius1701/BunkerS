@@ -571,10 +571,10 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
                 s.companyName !== 'NATH'
             )
           : [];
-        return filtered;
+        if (filtered.length > 0) return filtered;
       }
     } catch {}
-    return [];
+    return INITIAL_SUPPLIERS;
   });
 
   // Logs state with localStorage persistence

@@ -5,7 +5,16 @@ export interface ProductTypeItem {
 }
 
 // Boshlang'ich ro'yxat bo'sh - Admin kabineti ta'minotchi qo'shayotganda qo'lda kiritadi
-export const INITIAL_PRODUCT_TYPES: ProductTypeItem[] = [];
+export const INITIAL_PRODUCT_TYPES: ProductTypeItem[] = [
+  { id: 'sement_m500', label: 'Sement M500 / M400' },
+  { id: 'armatura_metall', label: 'Armatura va po‘lat prokat' },
+  { id: 'gazoblok_d500', label: 'Gazoblok va penoblok' },
+  { id: 'pishiq_gisht', label: 'Pishiq g‘isht va keramika' },
+  { id: 'suvoq_qorishmalar', label: 'Suvoq va shpaklyovka qorishmalari' },
+  { id: 'bazalt_izolyatsiya', label: 'Bazalt va penoplast issiqlik izolyatsiyasi' },
+  { id: 'tom_yopish', label: 'Tom yopish (Bikrost, Profnastil)' },
+  { id: 'truba_profil', label: 'Profil truba va shveller' },
+];
 
 const STORAGE_KEY = 'bunkerstroy_product_types';
 
@@ -31,14 +40,14 @@ function sanitizeTypes(types: ProductTypeItem[]): ProductTypeItem[] {
 export function getProductTypes(): ProductTypeItem[] {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return [];
+    if (!saved) return INITIAL_PRODUCT_TYPES;
     const parsed = JSON.parse(saved);
-    if (Array.isArray(parsed)) {
+    if (Array.isArray(parsed) && parsed.length > 0) {
       return sanitizeTypes(parsed);
     }
-    return [];
+    return INITIAL_PRODUCT_TYPES;
   } catch {
-    return [];
+    return INITIAL_PRODUCT_TYPES;
   }
 }
 
@@ -91,7 +100,13 @@ export function addProductType(newLabel: string): ProductTypeItem[] {
 // ============================================================================
 // ISHLAB CHIQARILGAN DAVLATLAR RO'YXATI (Faqat mahsulotga kiritilganda shakllanadi)
 // ============================================================================
-export const DEFAULT_ORIGIN_COUNTRIES: string[] = [];
+export const DEFAULT_ORIGIN_COUNTRIES: string[] = [
+  'O‘zbekiston',
+  'Qozog‘iston',
+  'Rossiya',
+  'Turkiya',
+  'Germaniya',
+];
 
 export function isCabinetCompanyName(val?: string): boolean {
   if (!val) return true;

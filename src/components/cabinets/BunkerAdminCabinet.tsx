@@ -65,6 +65,7 @@ import {
   UserProfile,
 } from '../../types';
 import { MOCK_FAKE_SUPPLIER_IDS } from '../../data/mockData';
+import { INITIAL_SUPPLIERS } from '../../data/suppliersData';
 import { REGIONS_AND_DISTRICTS } from '../../data/regionsData';
 import { getProductTypes, addProductType, ProductTypeItem } from '../../data/productTypes';
 import { db, sendSecurePhoneOtp, verifySecurePhoneOtp } from '../../lib/firebase';
@@ -230,14 +231,15 @@ export const BunkerAdminCabinet: React.FC<BunkerAdminCabinetProps> = ({
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed.filter(
+          const filtered = parsed.filter(
             (s: SupplierPartner) =>
               s && s.id && !MOCK_FAKE_SUPPLIER_IDS.includes(s.id) && s.companyName !== 'NATH'
           );
+          if (filtered.length > 0) return filtered;
         }
       }
     } catch {}
-    return [];
+    return INITIAL_SUPPLIERS;
   });
   const [supplierFilterTab, setSupplierFilterTab] = useState<'all' | 'manufacturer' | 'partner'>('all');
   const [supplierSearch, setSupplierSearch] = useState('');

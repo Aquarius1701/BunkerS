@@ -45,7 +45,8 @@ const ViewLoadingSpinner = () => (
   </div>
 );
 import { Product, CartItem, UserProfile, Order, LogisticsVehicle, SubAdminCabinetAccount, SupplierPartner } from './types';
-import { INITIAL_PRODUCTS, INITIAL_VEHICLES, MOCK_FAKE_PRODUCT_IDS, MOCK_FAKE_SUPPLIER_IDS } from './data/mockData';
+import { INITIAL_PRODUCTS, INITIAL_VEHICLES, INITIAL_ORDERS, INITIAL_CRM_DEBTS, MOCK_FAKE_PRODUCT_IDS, MOCK_FAKE_SUPPLIER_IDS } from './data/mockData';
+import { INITIAL_SUPPLIERS, INITIAL_LOGS } from './data/suppliersData';
 import { isOrderAfterReset, DEFAULT_STATS_RESET_CUTOFF_MS, pickMoreAdvancedOrder, saveOrdersToStorageSafe } from './data/supplierReportsData';
 import { auth, db, testConnection, logoutUser } from './lib/firebase';
 import { recordCabinetLog } from './lib/cabinetLogs';
@@ -286,17 +287,75 @@ export default function App() {
       const saved = localStorage.getItem('bunkerstroy_products');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return parsed.filter((p: Product) => p && p.id && !MOCK_FAKE_PRODUCT_IDS.includes(p.id));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed.filter((p: Product) => p && p.id && !MOCK_FAKE_PRODUCT_IDS.includes(p.id));
+          if (filtered.length > 0) return filtered;
         }
       }
-      return [];
+      return INITIAL_PRODUCTS;
     } catch {
-      return [];
+      return INITIAL_PRODUCTS;
     }
   });
   const [vehicles, setVehicles] = useState<LogisticsVehicle[]>(INITIAL_VEHICLES);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>(() => {
+    try {
+      const saved = localStorage.getItem('bunkerstroy_orders');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const filtered = parsed.filter((o: Order) => isOrderAfterReset(o));
+          if (filtered.length > 0) return filtered;
+        }
+      }
+      return INITIAL_ORDERS;
+    } catch {
+      return INITIAL_ORDERS;
+    }
+  });
+
+  // Investor & Platform Demo Data Auto-Seeder: birinchi yuklanishda barcha bo'sh omborlarni boyitish
+  useEffect(() => {
+    try {
+      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v2');
+      if (isSeeded !== 'done') {
+        const rawSupps = localStorage.getItem('bunkerstroy_suppliers');
+        const suppsList = rawSupps ? JSON.parse(rawSupps) : [];
+        if (!Array.isArray(suppsList) || suppsList.length === 0) {
+          localStorage.setItem('bunkerstroy_suppliers', JSON.stringify(INITIAL_SUPPLIERS));
+        }
+
+        const rawProds = localStorage.getItem('bunkerstroy_products');
+        const prodsList = rawProds ? JSON.parse(rawProds) : [];
+        if (!Array.isArray(prodsList) || prodsList.length === 0) {
+          localStorage.setItem('bunkerstroy_products', JSON.stringify(INITIAL_PRODUCTS));
+        }
+
+        const rawOrds = localStorage.getItem('bunkerstroy_orders');
+        const ordsList = rawOrds ? JSON.parse(rawOrds) : [];
+        if (!Array.isArray(ordsList) || ordsList.length === 0) {
+          localStorage.setItem('bunkerstroy_orders', JSON.stringify(INITIAL_ORDERS));
+        }
+
+        const rawDebts = localStorage.getItem('bunkerstroy_crm_debts');
+        const debtsList = rawDebts ? JSON.parse(rawDebts) : [];
+        if (!Array.isArray(debtsList) || debtsList.length === 0) {
+          localStorage.setItem('bunkerstroy_crm_debts', JSON.stringify(INITIAL_CRM_DEBTS));
+        }
+
+        const rawLogs = localStorage.getItem('bunkerstroy_logs');
+        const logsList = rawLogs ? JSON.parse(rawLogs) : [];
+        if (!Array.isArray(logsList) || logsList.length === 0) {
+          localStorage.setItem('bunkerstroy_logs', JSON.stringify(INITIAL_LOGS));
+        }
+
+        localStorage.setItem('bunkerstroy_investor_seed_v2', 'done');
+        window.dispatchEvent(new CustomEvent('bunkerstroy_suppliers_updated'));
+        window.dispatchEvent(new CustomEvent('bunkerstroy_products_updated'));
+        window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
+      }
+    } catch {}
+  }, []);
 
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
