@@ -7,3 +7,4 @@ coverage/
 server/backups/
 .env*
 !.env.example
+!src/lib/

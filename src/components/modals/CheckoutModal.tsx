@@ -37,6 +37,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { recordCabinetLog } from '../../lib/cabinetLogs';
 import { InteractiveDeliveryMap } from '../common/InteractiveDeliveryMap';
 import { createOrderApi } from '../../lib/api';
+import { formatPrice, formatUzPhoneInput } from '../../lib/formatters';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -559,18 +560,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   if (!isOpen) return null;
 
   const grandTotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-
-  const formatPrice = (p: number) => new Intl.NumberFormat('uz-UZ').format(p) + " so'm";
-
-  const formatUzPhoneInput = (val: string) => {
-    const digits = val.replace(/\D/g, '');
-    const local = digits.startsWith('998') ? digits.slice(3, 12) : digits.slice(0, 9);
-    if (local.length === 0) return '+998 ';
-    if (local.length <= 2) return `+998 ${local}`;
-    if (local.length <= 5) return `+998 ${local.slice(0, 2)} ${local.slice(2)}`;
-    if (local.length <= 7) return `+998 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5)}`;
-    return `+998 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 7)} ${local.slice(7, 9)}`;
-  };
 
   // Step 1 -> Step 2 validation
   const handleProceedToAddress = () => {

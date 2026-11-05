@@ -42,6 +42,7 @@ import {
   acquireCabinetDeviceLock,
 } from '../../lib/securityGuard';
 import { setAuthToken } from '../../lib/api';
+import { formatUzPhone, getUzPhoneDigitsCount } from '../../lib/formatters';
 import { 
   Truck, 
   AlertCircle, 
@@ -73,30 +74,7 @@ import {
   Timer
 } from 'lucide-react';
 
-// Telefon raqamini +998 formatlash
-const formatUzPhone = (val: string): string => {
-  let digits = val.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.slice(3);
-  }
-  digits = digits.slice(0, 9);
-  if (digits.length === 0) return '+998 ';
-  
-  let formatted = '+998 ';
-  if (digits.length > 0) formatted += digits.slice(0, 2);
-  if (digits.length > 2) formatted += ' ' + digits.slice(2, 5);
-  if (digits.length > 5) formatted += ' ' + digits.slice(5, 7);
-  if (digits.length > 7) formatted += ' ' + digits.slice(7, 9);
-  return formatted;
-};
 
-const getUzPhoneDigitsCount = (val: string): number => {
-  let digits = val.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.slice(3);
-  }
-  return Math.min(digits.length, 9);
-};
 
 const formatTimer = (seconds: number): string => {
   const m = Math.floor(seconds / 60);

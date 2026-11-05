@@ -92,6 +92,7 @@ import {
   updateOrderStatusApi,
   getSupplierStatsApi,
 } from '../../lib/api';
+import { formatPrice, formatUzPhoneInput } from '../../lib/formatters';
 
 interface SupplierCabinetProps {
   currentUser: UserProfile;
@@ -849,16 +850,6 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
   // Yetkazib beruvchi telefon raqami input holatlari (har bir buyurtma qatori uchun)
   const [driverPhoneInputs, setDriverPhoneInputs] = useState<Record<string, string>>({});
   const [driverPhoneErrors, setDriverPhoneErrors] = useState<Record<string, string>>({});
-
-  const formatUzPhoneInput = (val: string) => {
-    const digits = val.replace(/\D/g, '');
-    const local = digits.startsWith('998') ? digits.slice(3, 12) : digits.slice(0, 9);
-    if (local.length === 0) return '+998 ';
-    if (local.length <= 2) return `+998 ${local}`;
-    if (local.length <= 5) return `+998 ${local.slice(0, 2)} ${local.slice(2)}`;
-    if (local.length <= 7) return `+998 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5)}`;
-    return `+998 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5, 7)} ${local.slice(7, 9)}`;
-  };
 
   // Mijozlar ro'yxati (platforma foydalanuvchilaridan kelgan so'rovlar — B2B/B2C kabinet so'rovlari 2-bo'limda alohida ko'rinadi)
   const supplierCustomers = useMemo(() => {
@@ -3867,10 +3858,6 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
     navigator.clipboard?.writeText(lines);
     setCrmCopySuccess(true);
     setTimeout(() => setCrmCopySuccess(false), 2500);
-  };
-
-  const formatPrice = (p: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(p) + " so'm";
   };
 
   const formatCleanCompanyName = (rawName?: string): string => {

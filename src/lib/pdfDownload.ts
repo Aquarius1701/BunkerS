@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { formatPrice } from './formatters';
 
 const sanitizePdfText = (text: string | number | undefined | null): string => {
   if (text === undefined || text === null) return '';
@@ -10,9 +11,7 @@ const sanitizePdfText = (text: string | number | undefined | null): string => {
     .replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '');
 };
 
-const formatCurrency = (n: number): string => {
-  return new Intl.NumberFormat('uz-UZ').format(Math.round(Number(n) || 0)).replace(/\u00A0/g, ' ') + " so'm";
-};
+const formatCurrency = (n: number): string => formatPrice(Math.round(Number(n) || 0));
 
 export interface MonitoringPdfParams {
   reportTitle: string;

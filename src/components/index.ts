@@ -8,6 +8,7 @@ export * from './common/Navbar';
 export * from './common/SocialLogos';
 export * from './common/InteractiveDeliveryMap';
 export * from './common/MapsGroundingView';
+export * from './common/OrderStatusBadge';
 
 // Modals
 export * from './modals/AuthModal';

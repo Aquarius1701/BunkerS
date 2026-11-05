@@ -100,31 +100,10 @@ import {
   createVehicleApi,
   updateVehicleApi,
 } from '../../lib/api';
+import { formatPrice, formatUzPhone, getUzPhoneDigitsCount } from '../../lib/formatters';
 
-// Telefon raqamini +998 dan keyin 9 ta raqam shaklida formatlash
-export const formatUzPhone = (val: string): string => {
-  let digits = val.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.slice(3);
-  }
-  digits = digits.slice(0, 9);
-  if (digits.length === 0) return '+998 ';
-  
-  let formatted = '+998 ';
-  if (digits.length > 0) formatted += digits.slice(0, 2);
-  if (digits.length > 2) formatted += ' ' + digits.slice(2, 5);
-  if (digits.length > 5) formatted += ' ' + digits.slice(5, 7);
-  if (digits.length > 7) formatted += ' ' + digits.slice(7, 9);
-  return formatted;
-};
-
-export const getUzPhoneDigitsCount = (val: string): number => {
-  let digits = val.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.slice(3);
-  }
-  return Math.min(digits.length, 9);
-};
+// Backward-compatible re-exports from centralized formatters
+export { formatUzPhone, getUzPhoneDigitsCount };
 
 export interface GlobalBunkerPartner {
   id: string;
@@ -2042,9 +2021,7 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
 
   const regionsList = Object.keys(REGIONS_AND_DISTRICTS);
 
-  const formatPriceSum = (amount: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(amount) + " so'm";
-  };
+  const formatPriceSum = (amount: number) => formatPrice(amount);
 
   const handleAddTransactionSubmit = (e: React.FormEvent) => {
     e.preventDefault();

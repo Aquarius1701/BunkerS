@@ -68,6 +68,7 @@ import { REGIONS_AND_DISTRICTS } from '../../data/regionsData';
 import { INITIAL_PRODUCTS } from '../../data/mockData';
 import { isOrderAfterReset, pickMoreAdvancedOrder, saveOrdersToStorageSafe } from '../../data/supplierReportsData';
 import { getOrdersApi, updateOrderStatusApi } from '../../lib/api';
+import { formatPrice } from '../../lib/formatters';
 import {
   getLoginConflictError,
   isLoginRejectedError,
@@ -711,8 +712,6 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
       unsubscribe();
     };
   }, [user]);
-
-  const formatPrice = (p: number) => new Intl.NumberFormat('uz-UZ').format(p) + " so'm";
 
   // Tug'ilgan sanani KK.OO.YYYY formatlash
   const formatBirthDateInput = (val: string): string => {

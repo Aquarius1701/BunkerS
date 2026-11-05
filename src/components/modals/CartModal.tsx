@@ -20,6 +20,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { CheckoutModal } from './CheckoutModal';
 import { getColorPaletteItem } from '../../lib/colorPalette';
 import { useLanguage } from '../../lib/i18n';
+import { formatPrice as formatPriceCore } from '../../lib/formatters';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -63,7 +64,7 @@ export const CartModal: React.FC<CartModalProps> = ({
   const grandTotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const totalCartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const formatPrice = (p: number) => new Intl.NumberFormat('uz-UZ').format(p) + ' ' + t("so'm", 'сум');
+  const formatPrice = (p: number) => formatPriceCore(p, { suffix: t("so'm", 'сум') });
 
   const selectedItem = items.find((i) => i.product.id === selectedProductId);
   const otherItems = items.filter((i) => i.product.id !== selectedProductId);

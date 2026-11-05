@@ -71,6 +71,7 @@ import { db, sendSecurePhoneOtp, verifySecurePhoneOtp } from '../../lib/firebase
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { releaseCabinetDeviceLock } from '../../lib/securityGuard';
 import { useLanguage } from '../../lib/i18n';
+import { formatUzPhone } from '../../lib/formatters';
 
 interface BunkerAdminCabinetProps {
   currentUser?: UserProfile | null;
@@ -81,21 +82,6 @@ interface BunkerAdminCabinetProps {
   onEnterSubAdminCabinet: (subAdmin: SubAdminCabinetAccount) => void;
   onEnterSupplierCabinet?: (supplier: SupplierPartner) => void;
 }
-
-const formatUzPhone = (val: string): string => {
-  let digits = val.replace(/\D/g, '');
-  if (digits.startsWith('998')) {
-    digits = digits.slice(3);
-  }
-  digits = digits.slice(0, 9);
-  if (digits.length === 0) return '+998 ';
-  let formatted = '+998 ';
-  if (digits.length > 0) formatted += digits.slice(0, 2);
-  if (digits.length > 2) formatted += ' ' + digits.slice(2, 5);
-  if (digits.length > 5) formatted += ' ' + digits.slice(5, 7);
-  if (digits.length > 7) formatted += ' ' + digits.slice(7, 9);
-  return formatted;
-};
 
 export const BunkerAdminCabinet: React.FC<BunkerAdminCabinetProps> = ({
   onLogout,

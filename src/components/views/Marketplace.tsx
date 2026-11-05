@@ -39,6 +39,7 @@ import { REGIONS_AND_DISTRICTS } from '../../data/regionsData';
 import { getProductTypes, ProductTypeItem, getManufacturers, isCabinetCompanyName } from '../../data/productTypes';
 import { getColorPaletteItem } from '../../lib/colorPalette';
 import { recordProductSearchQuery } from '../../data/supplierReportsData';
+import { formatPrice } from '../../lib/formatters';
 
 interface MarketplaceProps {
   products: Product[];
@@ -577,10 +578,6 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ products, onAddToCart,
     setIsFilterOpen(false);
     setIsRegionOpen(false);
     setIsDistrictOpen(false);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('uz-UZ').format(price) + " so'm";
   };
 
   const hasSquareMetersFilter = minSquareMeters !== '' || maxSquareMeters !== '';
