@@ -67,6 +67,7 @@ import { recordCabinetLog } from '../../lib/cabinetLogs';
 import { REGIONS_AND_DISTRICTS } from '../../data/regionsData';
 import { INITIAL_PRODUCTS } from '../../data/mockData';
 import { isOrderAfterReset, pickMoreAdvancedOrder, saveOrdersToStorageSafe } from '../../data/supplierReportsData';
+import { getOrdersApi, updateOrderStatusApi } from '../../lib/api';
 import {
   getLoginConflictError,
   isLoginRejectedError,
@@ -259,6 +260,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
     try {
       await setDoc(doc(db, 'orders', orderId), paidOrderObj, { merge: true });
+      updateOrderStatusApi(orderId, 'delivered').catch(() => {});
     } catch {}
 
     window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
@@ -665,6 +667,13 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
 
     // 1. Try local storage orders first for instant display
     syncLocalAndFirestore();
+
+    // 1b. Sync orders from PostgreSQL database
+    getOrdersApi(user.id).then((dbOrders) => {
+      if (Array.isArray(dbOrders) && dbOrders.length > 0) {
+        syncLocalAndFirestore(dbOrders);
+      }
+    }).catch(() => {});
 
     const handleLocalOrdersEvent = () => {
       syncLocalAndFirestore();

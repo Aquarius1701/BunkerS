@@ -85,7 +85,13 @@ import {
 } from '../../lib/adminSettings';
 import { useLanguage } from '../../lib/i18n';
 import { recordCabinetLog, getLocalCabinetLogs, detectDeviceInfo, CabinetLogItem } from '../../lib/cabinetLogs';
-import { getCrmDebtsApi, createCrmDebtApi, recordCrmDebtPaymentApi } from '../../lib/api';
+import {
+  getCrmDebtsApi,
+  createCrmDebtApi,
+  recordCrmDebtPaymentApi,
+  updateOrderStatusApi,
+  getSupplierStatsApi,
+} from '../../lib/api';
 
 interface SupplierCabinetProps {
   currentUser: UserProfile;
@@ -2121,6 +2127,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
             : [syncedOrder, ...list];
         localStorage.setItem('bunkerstroy_orders', JSON.stringify(nextOrders));
         setDoc(doc(db, 'orders', syncedOrder.id), syncedOrder, { merge: true }).catch(() => {});
+        updateOrderStatusApi(syncedOrder.id, 'confirmed').catch(() => {});
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
           window.dispatchEvent(new CustomEvent('bunkerstroy_finance_updated'));
@@ -2192,6 +2199,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
             : [syncedOrder, ...list];
         localStorage.setItem('bunkerstroy_orders', JSON.stringify(nextOrders));
         setDoc(doc(db, 'orders', syncedOrder.id), syncedOrder, { merge: true }).catch(() => {});
+        updateOrderStatusApi(syncedOrder.id, 'confirmed').catch(() => {});
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
         }, 0);
@@ -2275,6 +2283,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
             : [syncedOrder, ...list];
         localStorage.setItem('bunkerstroy_orders', JSON.stringify(nextOrders));
         setDoc(doc(db, 'orders', syncedOrder.id), syncedOrder, { merge: true }).catch(() => {});
+        updateOrderStatusApi(syncedOrder.id, 'confirmed').catch(() => {});
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
           window.dispatchEvent(new CustomEvent('bunkerstroy_finance_updated'));
@@ -2309,6 +2318,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
         );
         localStorage.setItem('bunkerstroy_orders', JSON.stringify(nextOrders));
         setDoc(doc(db, 'orders', updatedOrder.id), { status: 'delivered', updatedAt: nowIso }, { merge: true }).catch(() => {});
+        updateOrderStatusApi(updatedOrder.id, 'delivered').catch(() => {});
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
           window.dispatchEvent(new CustomEvent('bunkerstroy_finance_updated'));
@@ -2786,6 +2796,12 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
       }, 0);
       setOrdersRefreshTick((t) => t + 1);
     } catch {}
+
+    if (payingDebtRecord?.id && payAmt > 0) {
+      recordCrmDebtPaymentApi(payingDebtRecord.id, payAmt).catch((err) => {
+        console.warn('Backend recordCrmDebtPaymentApi notice:', err);
+      });
+    }
 
     setPayingDebtRecord(null);
     setPayDebtAmountInput('');

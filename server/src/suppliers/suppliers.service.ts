@@ -1,7 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { hashPasswordArgon2idSpec } from '../common/crypto.util';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { QuerySupplierDto } from './dto/query-supplier.dto';
+import { UpdateSupplierDto } from './dto/update-supplier.dto';
 
 @Injectable()
 export class SuppliersService {
@@ -45,6 +48,7 @@ export class SuppliersService {
         district: true,
         phone: true,
         rating: true,
+        status: true,
         contractNumber: true,
         commissionRate: true,
         commissionBasis: true,
@@ -78,12 +82,134 @@ export class SuppliersService {
       throw new NotFoundException(`ID '${id}' bo‘yicha yetkazib beruvchi / zavod topilmadi`);
     }
 
-    // Omit sensitive authentication hashes
     const { passwordHash, emergencyPasswordHash, ...safeSupplier } = supplier;
 
     return {
       success: true,
       data: safeSupplier,
+    };
+  }
+
+  async create(dto: CreateSupplierDto) {
+    const existing = await this.prisma.supplier.findFirst({
+      where: {
+        OR: [
+          { inn: dto.inn },
+          ...(dto.login ? [{ login: dto.login }] : []),
+        ],
+      },
+    });
+
+    if (existing) {
+      if (existing.inn === dto.inn) {
+        throw new ConflictException(`Ushbu STIR (${dto.inn}) bo‘yicha ta’minotchi allaqachon mavjud`);
+      }
+      throw new ConflictException(`Ushbu login (${dto.login}) allaqachon band`);
+    }
+
+    const generatedLogin = dto.login?.trim() || `supp_${dto.inn}`;
+    const plainPass = dto.password?.trim() || `BunkerPass_${dto.inn}!`;
+    const passwordHash = hashPasswordArgon2idSpec(plainPass);
+
+    const supplier = await this.prisma.supplier.create({
+      data: {
+        companyName: dto.companyName.trim(),
+        inn: dto.inn.trim(),
+        cabinetType: dto.cabinetType,
+        phone: dto.phone.trim(),
+        secondaryPhone: dto.secondaryPhone?.trim() || null,
+        region: dto.region.trim(),
+        district: dto.district?.trim() || null,
+        category: dto.category?.trim() || 'Qurilish mollari',
+        login: generatedLogin,
+        passwordHash,
+        status: dto.status || 'active',
+        contractNumber: dto.contractNumber?.trim() || `CTR-${Date.now().toString(36).toUpperCase()}`,
+        commissionRate: dto.commissionRate !== undefined ? Number(dto.commissionRate) : 1.5,
+        commissionBasis: dto.commissionBasis || 'total',
+      },
+    });
+
+    const { passwordHash: _p, emergencyPasswordHash: _e, ...safeSupplier } = supplier;
+
+    return {
+      success: true,
+      message: 'Yetkazib beruvchi kabineti muvaffaqiyatli yaratildi',
+      data: safeSupplier,
+    };
+  }
+
+  async update(id: string, dto: UpdateSupplierDto) {
+    const existing = await this.prisma.supplier.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`ID '${id}' bo‘yicha yetkazib beruvchi topilmadi`);
+    }
+
+    const data: Prisma.SupplierUpdateInput = {};
+    if (dto.companyName) data.companyName = dto.companyName.trim();
+    if (dto.cabinetType) data.cabinetType = dto.cabinetType;
+    if (dto.phone) data.phone = dto.phone.trim();
+    if (dto.secondaryPhone !== undefined) data.secondaryPhone = dto.secondaryPhone?.trim() || null;
+    if (dto.region) data.region = dto.region.trim();
+    if (dto.district !== undefined) data.district = dto.district?.trim() || null;
+    if (dto.category) data.category = dto.category.trim();
+    if (dto.status) data.status = dto.status;
+    if (dto.contractNumber) data.contractNumber = dto.contractNumber.trim();
+    if (dto.commissionRate !== undefined) data.commissionRate = Number(dto.commissionRate);
+    if (dto.commissionBasis) data.commissionBasis = dto.commissionBasis;
+    if (dto.password) data.passwordHash = hashPasswordArgon2idSpec(dto.password.trim());
+
+    const updated = await this.prisma.supplier.update({
+      where: { id },
+      data,
+    });
+
+    const { passwordHash: _p, emergencyPasswordHash: _e, ...safeSupplier } = updated;
+
+    return {
+      success: true,
+      message: 'Yetkazib beruvchi ma’lumotlari muvaffaqiyatli yangilandi',
+      data: safeSupplier,
+    };
+  }
+
+  async updateStatus(id: string, status: string) {
+    const existing = await this.prisma.supplier.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`ID '${id}' bo‘yicha yetkazib beruvchi topilmadi`);
+    }
+
+    const updated = await this.prisma.supplier.update({
+      where: { id },
+      data: { status },
+      select: {
+        id: true,
+        companyName: true,
+        inn: true,
+        cabinetType: true,
+        status: true,
+        updatedAt: true,
+      },
+    });
+
+    return {
+      success: true,
+      message: `Yetkazib beruvchi holati '${status}' ga o‘zgartirildi`,
+      data: updated,
+    };
+  }
+
+  async delete(id: string) {
+    const existing = await this.prisma.supplier.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`ID '${id}' bo‘yicha yetkazib beruvchi topilmadi`);
+    }
+
+    await this.prisma.supplier.delete({ where: { id } });
+
+    return {
+      success: true,
+      message: 'Yetkazib beruvchi muvaffaqiyatli o‘chirildi',
     };
   }
 

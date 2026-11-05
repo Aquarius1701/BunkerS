@@ -4,15 +4,15 @@ import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class UpdateOrderStatusDto {
   @ApiProperty({
     description: 'Buyurtma holati',
-    enum: ['pending', 'confirmed', 'assigned', 'in_transit', 'delivered', 'cancelled'],
+    enum: ['pending', 'confirmed', 'preparing', 'ready', 'assigned', 'in_transit', 'delivered', 'cancelled'],
     example: 'in_transit',
   })
   @IsString()
   @IsNotEmpty()
-  @IsIn(['pending', 'confirmed', 'assigned', 'in_transit', 'delivered', 'cancelled'], {
-    message: 'Holat quyidagilardan biri bo‘lishi kerak: pending, confirmed, assigned, in_transit, delivered, cancelled',
+  @IsIn(['pending', 'confirmed', 'preparing', 'ready', 'assigned', 'in_transit', 'delivered', 'cancelled'], {
+    message: 'Holat quyidagilardan biri bo‘lishi kerak: pending, confirmed, preparing, ready, assigned, in_transit, delivered, cancelled',
   })
-  status!: 'pending' | 'confirmed' | 'assigned' | 'in_transit' | 'delivered' | 'cancelled';
+  status!: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'assigned' | 'in_transit' | 'delivered' | 'cancelled';
 
   @ApiPropertyOptional({ description: 'Haydovchi F.I.Sh.', example: 'Sobirov Elyor' })
   @IsOptional()

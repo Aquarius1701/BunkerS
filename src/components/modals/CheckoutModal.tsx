@@ -1069,6 +1069,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         }
       }
 
+      try {
+        const saved = localStorage.getItem('bunkerstroy_orders');
+        const list: Order[] = saved ? JSON.parse(saved) : [];
+        const nextList = [
+          ...createdOrders,
+          ...list.filter((o) => !createdOrders.some((co) => co.id === o.id)),
+        ];
+        localStorage.setItem('bunkerstroy_orders', JSON.stringify(nextList));
+        window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
+      } catch {}
+
       setCompletedOrder(primaryOrder);
       setCompletedZavodOrder(secondaryZavodOrder);
       onClearCart();

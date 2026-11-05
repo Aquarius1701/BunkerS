@@ -55,6 +55,7 @@ import {
   compressImageFileToDataUrl,
 } from '../../lib/adminSettings';
 import { RealTelegramLogo, RealInstagramLogo, RealYouTubeLogo, RealPhoneLogo } from '../common/SocialLogos';
+import { createSupplierApi, updateSupplierApi, deleteSupplierApi } from '../../lib/api';
 import {
   AdminPermissionSection,
   SubAdminCabinetAccount,
@@ -656,6 +657,10 @@ export const BunkerAdminCabinet: React.FC<BunkerAdminCabinetProps> = ({
       setDoc(doc(db, 'users', newSupplier.id), cleanForFirestore, { merge: true }).catch(() => {});
     } catch {}
 
+    createSupplierApi(newSupplier).then((res) => {
+      if (res?.data?.id) newSupplier.id = res.data.id;
+    }).catch((err) => console.warn('Backend createSupplier notice:', err));
+
     const updatedSuppliers = [newSupplier, ...suppliers];
     try {
       localStorage.setItem('bunkerstroy_suppliers', JSON.stringify(updatedSuppliers));
@@ -803,6 +808,7 @@ export const BunkerAdminCabinet: React.FC<BunkerAdminCabinetProps> = ({
       } catch {}
     }
     setSuppliers(nextSuppliers);
+    updateSupplierApi(editingSupplier.id, updatedSupp).catch((err) => console.warn('Backend updateSupplier notice:', err));
     setEditSuppSuccess(true);
     setTimeout(() => {
       setEditSuppSuccess(false);
@@ -830,6 +836,7 @@ export const BunkerAdminCabinet: React.FC<BunkerAdminCabinetProps> = ({
       window.dispatchEvent(new CustomEvent('bunkerstroy_suppliers_updated'));
     } catch {}
     setSuppliers(nextSuppliers);
+    deleteSupplierApi(deletingSupplier.id).catch((err) => console.warn('Backend deleteSupplier notice:', err));
 
     try {
       deleteDoc(doc(db, 'users', deletingSupplier.id)).catch(() => {});

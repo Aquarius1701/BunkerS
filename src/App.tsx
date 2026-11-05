@@ -323,6 +323,7 @@ export default function App() {
       if (!Array.isArray(suppList) || suppList.length === 0) return products;
       return products.filter((p) => {
         if (!p || !p.id) return false;
+        if ((p as any).supplier) return true;
         return suppList.some(
           (s) =>
             s &&

@@ -92,6 +92,14 @@ import { db, sendSecurePhoneOtp, verifySecurePhoneOtp } from '../../lib/firebase
 import { collection, onSnapshot, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { MapsGroundingView } from '../common/MapsGroundingView';
 import { BunkerStatsDashboard } from './BunkerStatsDashboard';
+import {
+  getSuppliersApi,
+  createSupplierApi,
+  deleteSupplierApi,
+  getLogisticsVehiclesApi,
+  createVehicleApi,
+  updateVehicleApi,
+} from '../../lib/api';
 
 // Telefon raqamini +998 dan keyin 9 ta raqam shaklida formatlash
 export const formatUzPhone = (val: string): string => {
@@ -580,7 +588,6 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
               (s: SupplierPartner) =>
                 s &&
                 s.id &&
-                s.id.startsWith('supp-') &&
                 !MOCK_FAKE_SUPPLIER_IDS.includes(s.id) &&
                 s.companyName !== 'NATH'
             )
@@ -1608,6 +1615,9 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
         };
 
         syncSupplierToFirestore(newSupplier);
+        createSupplierApi(newSupplier).then((res) => {
+          if (res?.data?.id) newSupplier.id = res.data.id;
+        }).catch((err) => console.warn('Backend createSupplier notice:', err));
 
         const updatedSuppliersAfterAdd = [newSupplier, ...suppliers];
         persistSuppliersSafe(updatedSuppliersAfterAdd);
@@ -1708,6 +1718,7 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
     );
     persistSuppliersSafe(updatedAfterDelete);
     setSuppliers(updatedAfterDelete);
+    deleteSupplierApi(supplier.id).catch((err) => console.warn('Backend deleteSupplier notice:', err));
 
     // O'chirilgan kabinetga tegishli mahsulotlarni ham o'chirish (boshqa kabinet turidagi korxona mahsulotlariga tegmasdan)
     try {
@@ -2451,6 +2462,9 @@ export const AdminCabinet: React.FC<AdminCabinetProps> = ({
       try { localStorage.setItem('bunkerstroy_vehicles', JSON.stringify(updated)); } catch {}
       return updated;
     });
+    createVehicleApi(newV).then((res) => {
+      if (res && res.id) newV.id = res.id;
+    }).catch((err) => console.warn('Backend createVehicle notice:', err));
     addLog('Yangi og‘ir yuk transporti qo‘shildi', 'system', `${newV.name} (${newV.driverName}, ${newV.phone}) transport floti ro‘yxatiga kiritildi.`, 'success');
     setIsAddVehicleOpen(false);
     setNewVehName('');
