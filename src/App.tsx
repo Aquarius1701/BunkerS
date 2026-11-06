@@ -328,11 +328,12 @@ export default function App() {
   useEffect(() => {
     try {
       // v4: Pexels CDN rasmlar patch + paymentPercentage
-      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v5');
+      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v6');
       if (isSeeded !== 'done') {
         // Avvalgi seed keylarini tozalab yangi data yuklash
         localStorage.removeItem('bunkerstroy_investor_seed_v3');
         localStorage.removeItem('bunkerstroy_investor_seed_v4');
+        localStorage.removeItem('bunkerstroy_investor_seed_v5');
 
         const rawSupps = localStorage.getItem('bunkerstroy_suppliers');
         const suppsList = rawSupps ? JSON.parse(rawSupps) : [];
@@ -379,7 +380,7 @@ export default function App() {
           localStorage.setItem('bunkerstroy_logs', JSON.stringify(INITIAL_LOGS));
         }
 
-        localStorage.setItem('bunkerstroy_investor_seed_v5', 'done');
+        localStorage.setItem('bunkerstroy_investor_seed_v6', 'done');
         window.dispatchEvent(new CustomEvent('bunkerstroy_suppliers_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_products_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
