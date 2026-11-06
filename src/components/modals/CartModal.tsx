@@ -63,6 +63,11 @@ export const CartModal: React.FC<CartModalProps> = ({
 
   const grandTotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const totalCartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrepayment = items.reduce((sum, item) => {
+    const pct = item.product.paymentPercentage ?? 100;
+    return sum + Math.round((item.product.price * item.quantity * pct) / 100);
+  }, 0);
+  const totalRemainingOnDelivery = Math.max(0, grandTotal - totalPrepayment);
 
   const formatPrice = (p: number) => formatPriceCore(p, { suffix: t("so'm", 'сум') });
 
@@ -104,17 +109,29 @@ export const CartModal: React.FC<CartModalProps> = ({
       buyerId: user.id,
       buyerName: user.displayName || 'Mijoz',
       buyerPhone: user.phone || 'Kelishilgan',
-      items: items.map((i) => ({
-        productId: i.product.id,
-        title: i.product.title,
-        quantity: i.quantity,
-        unit: i.product.unit,
-        price: i.product.price,
-        supplierId: i.product.supplierId,
-        supplierInn: i.product.supplierInn,
-        supplierName: i.product.supplierName,
-      })),
+      items: items.map((i) => {
+        const pct = i.product.paymentPercentage ?? 100;
+        const prepay = Math.round((i.product.price * i.quantity * pct) / 100);
+        return {
+          productId: i.product.id,
+          title: i.product.title,
+          quantity: i.quantity,
+          unit: i.product.unit,
+          price: i.product.price,
+          totalSum: i.product.price * i.quantity,
+          supplierId: i.product.supplierId,
+          supplierInn: i.product.supplierInn,
+          supplierName: i.product.supplierName,
+          paymentPercentage: pct,
+          prepaymentAmount: prepay,
+          remainingPaymentAmount: (i.product.price * i.quantity) - prepay,
+        };
+      }),
       totalAmount: grandTotal,
+      prepaymentAmount: totalPrepayment,
+      remainingPaymentAmount: totalRemainingOnDelivery,
+      prepaymentStatus: 'paid',
+      remainingPaymentStatus: totalRemainingOnDelivery > 0 ? 'pending_on_delivery' : 'paid',
       status: 'pending',
       deliveryAddress: user.region
         ? `${user.region}${user.district ? ', ' + user.district : ''}`
@@ -812,6 +829,11 @@ export const CartModal: React.FC<CartModalProps> = ({
                                 <span className="text-[7.5px] sm:text-xs text-[#FFB800] font-mono font-bold block leading-tight mt-0.5 break-words">
                                   {item.product.category}
                                 </span>
+                                {(item.product.paymentPercentage ?? 100) < 100 && (
+                                  <span className="inline-block mt-1 px-1.5 py-0.2 rounded text-[7px] sm:text-[9.5px] font-mono font-bold bg-amber-500/20 text-[#FFB800] border border-amber-500/40">
+                                    To‘lov: {item.product.paymentPercentage}% oldindan / {100 - (item.product.paymentPercentage || 100)}% borganda
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -837,6 +859,11 @@ export const CartModal: React.FC<CartModalProps> = ({
                             <div className="text-[7.5px] sm:text-xs text-sky-200 font-mono leading-tight mt-0.5">
                               1 {item.product.unit}
                             </div>
+                            {(item.product.paymentPercentage ?? 100) < 100 && (
+                              <div className="text-[7px] sm:text-[9.5px] font-mono font-bold text-emerald-300 leading-tight mt-0.5">
+                                1-to‘lov ({item.product.paymentPercentage}%): {formatPrice(Math.round((item.product.price * (item.product.paymentPercentage || 100)) / 100))}
+                              </div>
+                            )}
                           </td>
 
                           {/* 4-ustun: Miqdori */}
@@ -917,13 +944,25 @@ export const CartModal: React.FC<CartModalProps> = ({
         {/* Footer actions: Liquid Glass */}
         {items.length > 0 && (
           <div className="px-4 sm:px-7 py-3.5 sm:py-4 border-t border-white/15 liquid-glass-search-bar text-white flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-baseline gap-2.5">
-              <span className="text-xs sm:text-sm text-sky-200 font-extrabold uppercase tracking-wider">
-                Jami Summa:
-              </span>
-              <span className="text-base sm:text-2xl font-black text-[#FFB800] font-mono tracking-tight">
-                {formatPrice(grandTotal)}
-              </span>
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs sm:text-sm text-sky-200 font-extrabold uppercase tracking-wider">
+                  Jami Summa:
+                </span>
+                <span className="text-base sm:text-2xl font-black text-[#FFB800] font-mono tracking-tight">
+                  {formatPrice(grandTotal)}
+                </span>
+              </div>
+              {totalRemainingOnDelivery > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-mono font-bold">
+                  <span className="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    1-to‘lov (Hozir): {formatPrice(totalPrepayment)}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                    2-to‘lov (Borganda): {formatPrice(totalRemainingOnDelivery)}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2.5 sm:gap-3">

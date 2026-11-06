@@ -32,7 +32,8 @@ import {
   Factory,
   Globe,
   Menu,
-  ArrowRight
+  ArrowRight,
+  CreditCard
 } from 'lucide-react';
 import { Product, UserProfile } from '../../types';
 import { REGIONS_AND_DISTRICTS } from '../../data/regionsData';
@@ -2122,7 +2123,12 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ products, onAddToCart,
                       Tugagan
                     </div>
                   )}
-                  {isHovered && variantsList.length > 1 && (
+                  {product.paymentPercentage && product.paymentPercentage < 100 && (
+                    <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 text-[8.5px] sm:text-[9.5px] font-mono font-black shadow z-10 flex items-center gap-1 border border-amber-300">
+                      <span>{product.paymentPercentage}% oldindan</span>
+                    </div>
+                  )}
+                  {isHovered && variantsList.length > 1 && (!product.paymentPercentage || product.paymentPercentage === 100) && (
                     <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 px-1.5 py-0.5 rounded bg-[#FFB800] text-[#0A1931] text-[9px] sm:text-[10px] font-mono font-black shadow">
                       {displaySpec || displayUnit}
                     </div>
@@ -2151,6 +2157,11 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ products, onAddToCart,
                       <div className="text-[11px] sm:text-sm font-black text-[#FFB800] font-mono-numbers truncate leading-tight">
                         {formatPrice(displayPrice)}
                       </div>
+                      {product.paymentPercentage && product.paymentPercentage < 100 && (
+                        <div className="text-[7.5px] sm:text-[9px] font-mono font-bold text-emerald-300 truncate leading-tight mt-0.5">
+                          1-to‘lov ({product.paymentPercentage}%): {formatPrice(Math.round((displayPrice * product.paymentPercentage) / 100))}
+                        </div>
+                      )}
                     </div>
 
                     <div onClick={(e) => e.stopPropagation()} className="shrink-0">
@@ -2318,6 +2329,55 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ products, onAddToCart,
                           +QQS Narxi: {formatPrice(activeVar.originalPrice || previewProduct.originalPrice || 0)}
                         </span>
                       ) : null}
+                    </div>
+
+                    {/* To'lov Shartlari (1-to'lov % va qoldiq yetkazilganda) */}
+                    <div className="mt-3 p-3.5 rounded-xl bg-[#071326] border border-amber-500/50 space-y-2">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="text-xs font-black text-amber-400 flex items-center gap-1.5">
+                          <CreditCard className="w-4 h-4 text-amber-400" />
+                          <span>To‘lov shartlari (Bo‘lib to‘lash tartibi):</span>
+                        </span>
+                        <span
+                          className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-black ${
+                            (previewProduct.paymentPercentage ?? 100) < 100
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50'
+                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+                          }`}
+                        >
+                          {previewProduct.paymentPercentage ?? 100}% oldindan to‘lov
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                        <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                          <span className="text-[10px] text-emerald-300 font-sans font-bold block">
+                            1-bosqich: Buyurtma vaqtida ({previewProduct.paymentPercentage ?? 100}%):
+                          </span>
+                          <span className="text-sm font-black text-emerald-400">
+                            {formatPrice(
+                              Math.round(
+                                (activePrice * (previewProduct.paymentPercentage || 100)) / 100
+                              )
+                            )}
+                          </span>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-sky-500/10 border border-sky-500/30">
+                          <span className="text-[10px] text-sky-300 font-sans font-bold block">
+                            2-bosqich: Mahsulot borganda ({100 - (previewProduct.paymentPercentage ?? 100)}%):
+                          </span>
+                          <span className="text-sm font-black text-sky-400">
+                            {formatPrice(
+                              activePrice -
+                                Math.round(
+                                  (activePrice * (previewProduct.paymentPercentage || 100)) / 100
+                                )
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                        ℹ️ Ushbu mahsulot uchun xaridor dastlab {previewProduct.paymentPercentage ?? 100}% to‘laydi. Mahsulot manzilga yetib borgach, qolgan {100 - (previewProduct.paymentPercentage ?? 100)}% to‘lov topshiriladi.
+                      </p>
                     </div>
                   </div>
 

@@ -2344,12 +2344,27 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                             )}
 
                             {/* Eng pastki qator: Jami To'lov (chapda) va Mahsulot uchun chek (o'ngda) bir qatorda */}
-                            <div className="pt-1 border-t border-[#1E3A6D] flex items-center justify-between gap-2">
-                              <div className="flex items-baseline gap-1.5">
-                                <span className="text-[10px] text-slate-300 font-semibold">Jami To'lov:</span>
-                                <span className="text-xs sm:text-base font-black text-[#FFB800] font-mono">
-                                  {formatPrice(order.totalAmount)}
-                                </span>
+                            <div className="pt-1 border-t border-[#1E3A6D] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 flex-wrap">
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[10px] text-slate-300 font-semibold">Jami To'lov:</span>
+                                  <span className="text-xs sm:text-base font-black text-[#FFB800] font-mono">
+                                    {formatPrice(order.totalAmount)}
+                                  </span>
+                                </div>
+                                {(order.remainingPaymentAmount ?? 0) > 0 && (
+                                  <div className="flex flex-wrap items-center gap-1.5 text-[9.5px] sm:text-xs font-mono">
+                                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                      1-to‘lov: {formatPrice(order.prepaymentAmount ?? order.totalAmount)} (To‘langan ✅)
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                      {order.status === 'delivered'
+                                        ? '2-to‘lov (Yetkazilganda to‘landi ✅)'
+                                        : '2-to‘lov (Yetkazilganda to‘lanadi ⏳)'}
+                                      : {formatPrice(order.remainingPaymentAmount ?? 0)}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
 
                               {(order.status === 'assigned' ||
@@ -2358,7 +2373,7 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => setSelectedReceiptOrder(order)}
-                                  className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#FFB800] to-amber-500 hover:from-[#FFC928] hover:to-amber-400 text-[#0A1931] text-[10px] sm:text-xs font-black flex items-center gap-1 cursor-pointer transition-all shadow-sm active:scale-95 shrink-0"
+                                  className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#FFB800] to-amber-500 hover:from-[#FFC928] hover:to-amber-400 text-[#0A1931] text-[10px] sm:text-xs font-black flex items-center gap-1 cursor-pointer transition-all shadow-sm active:scale-95 shrink-0 self-end sm:self-auto"
                                 >
                                   <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                   <span>Mahsulot uchun chek</span>
@@ -3034,6 +3049,26 @@ export const OrdersView: React.FC<OrdersViewProps> = ({
                   <span>JAMI TO'LOV:</span>
                   <span>{formatPrice(selectedReceiptOrder.totalAmount)}</span>
                 </div>
+                {(selectedReceiptOrder.remainingPaymentAmount ?? 0) > 0 && (
+                  <div className="py-1 px-2 rounded-lg bg-slate-900 border border-slate-700 space-y-0.5">
+                    <div className="flex justify-between text-[10px] text-emerald-400 font-mono">
+                      <span>1-to‘lov (Dastlabki to‘lov):</span>
+                      <span className="font-bold">
+                        {formatPrice(
+                          selectedReceiptOrder.prepaymentAmount ?? selectedReceiptOrder.totalAmount
+                        )}{' '}
+                        (To‘landi)
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[10px] text-amber-300 font-mono">
+                      <span>2-to‘lov (Mahsulot borganda):</span>
+                      <span className="font-bold">
+                        {formatPrice(selectedReceiptOrder.remainingPaymentAmount ?? 0)}{' '}
+                        {selectedReceiptOrder.status === 'delivered' ? '(To‘landi)' : '(Kutilmoqda)'}
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between text-[10px] text-slate-400">
                   <span>To'lov turi:</span>
                   <span className="uppercase text-white font-bold">{selectedReceiptOrder.paymentMethod || 'Karta'}</span>

@@ -223,6 +223,7 @@ export interface ProductVariant {
   originalPrice: number;
   costPrice?: number;
   minOrder: number;
+  paymentPercentage?: number;
 }
 
 export interface Product {
@@ -232,6 +233,8 @@ export interface Product {
   price: number;
   originalPrice?: number;
   costPrice?: number;
+  paymentPercentage?: number;
+  prepaymentPercent?: number;
   initialStock?: number;
   unit: 'qop (50kg)' | 'tonna' | 'dona' | 'm²' | 'm³' | 'rulon' | 'metr' | string;
   saleChannel?: 'online' | 'offline';
@@ -292,8 +295,16 @@ export interface Order {
     supplierId?: string;
     supplierInn?: string;
     supplierName?: string;
+    paymentPercentage?: number;
+    prepaymentAmount?: number;
+    remainingPaymentAmount?: number;
   }[];
   totalAmount: number;
+  paymentPercentage?: number;
+  prepaymentAmount?: number;
+  remainingPaymentAmount?: number;
+  prepaymentStatus?: 'paid' | 'pending' | 'unpaid';
+  remainingPaymentStatus?: 'paid' | 'pending_on_delivery' | 'waived';
   status: 'pending' | 'confirmed' | 'assigned' | 'in_transit' | 'delivered' | 'cancelled';
   driverPhone?: string;
   driverName?: string;
@@ -362,6 +373,9 @@ export interface B2BOrderItem {
   manufacturerId?: string;
   manufacturerInn?: string;
   manufacturerName: string;
+  paymentPercentage?: number;
+  prepaymentAmount?: number;
+  remainingPaymentAmount?: number;
 }
 
 export interface B2BOrderRequest {
@@ -382,6 +396,11 @@ export interface B2BOrderRequest {
   manufacturerRegion?: string;
   items: B2BOrderItem[];
   totalAmount: number;
+  paymentPercentage?: number;
+  prepaymentAmount?: number;
+  remainingPaymentAmount?: number;
+  prepaymentPaid?: boolean;
+  remainingPaid?: boolean;
   status: 'requested' | 'approved_awaiting_payment' | 'paid' | 'preparing' | 'in_transit' | 'paid_shipped' | 'delivered';
   bankAccountDetails?: string;
   driverPhone?: string;

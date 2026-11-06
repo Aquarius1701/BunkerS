@@ -1290,6 +1290,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
   const [newUnlimitedStock, setNewUnlimitedStock] = useState<boolean>(false);
   const [newUnit, setNewUnit] = useState('kg');
   const [newMinOrder, setNewMinOrder] = useState<number | ''>(1);
+  const [newPaymentPercentage, setNewPaymentPercentage] = useState<number | ''>(100);
   const [newDesc, setNewDesc] = useState('');
 
   useEffect(() => {
@@ -1397,6 +1398,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
     setNewStock(100);
     setNewUnlimitedStock(false);
     setNewMinOrder(1);
+    setNewPaymentPercentage(100);
     setNewDesc('');
     setDraftVariants([
       {
@@ -1445,6 +1447,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
     setNewUnlimitedStock(isUnlim);
     setNewStock(isUnlim ? 1000 : typeof prod.stock === 'number' ? prod.stock : 0);
     setNewMinOrder(prod.minOrder || 1);
+    setNewPaymentPercentage(prod.paymentPercentage ?? 100);
     setNewDesc(prod.description || '');
     if (prod.variants && prod.variants.length > 0) {
       setDraftVariants(
@@ -3525,6 +3528,10 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
       ? Math.max(0, Math.floor(Number(newStock)))
       : editingProduct?.stock ?? 100;
     const parsedCostPrice = Number(newCostPrice) || editingProduct?.costPrice || 0;
+    const parsedPaymentPercentage =
+      newPaymentPercentage !== '' && !isNaN(Number(newPaymentPercentage))
+        ? Math.min(100, Math.max(1, Math.round(Number(newPaymentPercentage))))
+        : 100;
     const prevInitialStock = editingProduct?.initialStock ?? editingProduct?.stock ?? parsedStock;
     const computedInitialStock = newUnlimitedStock
       ? 999999999
@@ -3539,6 +3546,8 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
       price: primaryVariant.price,
       originalPrice: primaryVariant.originalPrice,
       costPrice: parsedCostPrice,
+      paymentPercentage: parsedPaymentPercentage,
+      prepaymentPercent: parsedPaymentPercentage,
       initialStock: computedInitialStock,
       unit: primaryVariant.unit,
       saleChannel: targetChannel,
@@ -3546,6 +3555,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
         ...v,
         costPrice: parsedCostPrice,
         minOrder: isB2BCabinet ? v.minOrder || 1 : 1,
+        paymentPercentage: parsedPaymentPercentage,
       })),
       supplierId: supplierData.id,
       supplierInn: supplierData.inn,
@@ -3598,6 +3608,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
     setNewStock(100);
     setNewUnlimitedStock(false);
     setNewMinOrder(1);
+    setNewPaymentPercentage(100);
     setNewDesc('');
     setDraftVariants([
       {
@@ -4787,6 +4798,18 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
                           <h4 className="font-black text-[11px] text-white leading-tight line-clamp-1 mb-1">
                             {prod.title}
                           </h4>
+
+                          {/* To'lov foizi indikatori */}
+                          <div className="mb-1 flex items-center gap-1">
+                            <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-black ${
+                              (prod.paymentPercentage ?? 100) < 100
+                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                : 'bg-slate-800 text-slate-300 border border-slate-700'
+                            }`}>
+                              To‘lov: {prod.paymentPercentage ?? 100}% oldindan
+                              {(prod.paymentPercentage ?? 100) < 100 && ` / ${100 - (prod.paymentPercentage ?? 100)}% borganda`}
+                            </span>
+                          </div>
                         </div>
 
                         {/* Asosiy: Mahsulot narxi va Tahrirlash tugmasi */}
@@ -4828,6 +4851,7 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
                           <th className="py-3.5 px-4 font-black border-r border-[#1E3A6D]">Variantlar</th>
                           <th className="py-3.5 px-4 font-black border-r border-[#1E3A6D]">Xususiyatlari</th>
                           <th className="py-3.5 px-4 font-black border-r border-[#1E3A6D]">Narxi</th>
+                          <th className="py-3.5 px-4 font-black border-r border-[#1E3A6D]">To‘lov Sharti</th>
                           {supplierData.cabinetType !== 'manufacturer' && (
                             <th className="py-3.5 px-4 font-black border-r border-[#1E3A6D]">
                               CRM narxi
@@ -4924,6 +4948,24 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
                                   <span className="text-xs text-sky-200 font-normal ml-1">
                                     so‘m
                                   </span>
+                                </div>
+                              </td>
+                              <td className="py-3.5 px-4 border-r border-[#1E3A6D]">
+                                <div className="space-y-1">
+                                  <span
+                                    className={`inline-flex items-center px-2 py-0.5 rounded font-mono font-bold text-xs ${
+                                      (prod.paymentPercentage ?? 100) < 100
+                                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                        : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/40'
+                                    }`}
+                                  >
+                                    {prod.paymentPercentage ?? 100}% oldindan
+                                  </span>
+                                  <div className="text-[10px] text-sky-200">
+                                    {(prod.paymentPercentage ?? 100) < 100
+                                      ? `Qoldiq (${100 - (prod.paymentPercentage ?? 100)}%) borganda`
+                                      : 'To‘liq to‘lov'}
+                                  </div>
                                 </div>
                               </td>
                               {supplierData.cabinetType !== 'manufacturer' && (
@@ -5050,6 +5092,45 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
                           </span>
                         </div>
                       )}
+
+                      {/* To'lov Sharti: Oldindan to'lov % va qoldiq to'lov */}
+                      <div className="p-2.5 rounded-xl bg-[#071326] border border-amber-500/40 col-span-2 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[10px] text-amber-300 font-bold flex items-center gap-1">
+                            <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+                            <span>To‘lov sharti:</span>
+                          </span>
+                          <span className="font-mono font-black text-amber-400">
+                            {p.paymentPercentage ?? 100}% oldindan
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-sky-200 leading-snug">
+                          {(p.paymentPercentage ?? 100) < 100 ? (
+                            <>
+                              1-to‘lov:{' '}
+                              <strong className="text-emerald-300">
+                                {p.paymentPercentage}%
+                              </strong>{' '}
+                              (
+                              {formatPrice(
+                                Math.round((p.price * (p.paymentPercentage || 100)) / 100)
+                              )}
+                              ), qolgan{' '}
+                              <strong className="text-amber-300">
+                                {100 - (p.paymentPercentage ?? 100)}%
+                              </strong>{' '}
+                              (
+                              {formatPrice(
+                                p.price -
+                                  Math.round((p.price * (p.paymentPercentage || 100)) / 100)
+                              )}
+                              ) mahsulot yetib borganda to‘lanadi.
+                            </>
+                          ) : (
+                            '100% to‘liq to‘lov'
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Variantlar va ranglar */}
@@ -9810,6 +9891,113 @@ export const SupplierCabinet: React.FC<SupplierCabinetProps> = ({
                     />
                   </div>
                 )}
+
+                {/* To'lov foizi (%): Birinchi to'lov va qoldiq to'lov mahsulot borganda */}
+                <div className="pt-3 border-t border-slate-800/80 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                    <label className="text-amber-400 font-black text-xs sm:text-sm flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-amber-400" />
+                      <span>Mahsulot To‘lov Sharti / Oldindan to‘lov foizi (%):</span>
+                      <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold">
+                        1-to‘lov foizi
+                      </span>
+                    </label>
+                    <span className="text-[11px] text-slate-400">
+                      Qoldiq to‘lov:{' '}
+                      <strong className="text-emerald-400">
+                        {100 - (Number(newPaymentPercentage) || 100)}% mahsulot borganda
+                      </strong>
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+                    {/* Tezkor tanlash tugmalari (30%, 50%, 70%, 100%) */}
+                    <div className="lg:col-span-8 flex flex-wrap items-center gap-2">
+                      {[
+                        { val: 30, label: '30% (30/70 bo‘lib to‘lash)' },
+                        { val: 50, label: '50% (50/50 yarmi oldindan)' },
+                        { val: 70, label: '70% (70/30 asosiy qism)' },
+                        { val: 100, label: '100% (To‘liq oldindan to‘lov)' },
+                      ].map((preset) => (
+                        <button
+                          key={preset.val}
+                          type="button"
+                          onClick={() => setNewPaymentPercentage(preset.val)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                            newPaymentPercentage === preset.val
+                              ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md font-black scale-[1.02]'
+                              : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-amber-400/60 hover:text-white'
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Qo'lda foiz kiritish maydoni */}
+                    <div className="lg:col-span-4 flex items-center gap-2 bg-slate-900 border border-amber-500/50 rounded-xl px-3 py-2">
+                      <label className="text-[11px] font-bold text-slate-300 shrink-0">
+                        Foiz (%):
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={3}
+                        value={newPaymentPercentage}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, '');
+                          if (digits === '') {
+                            setNewPaymentPercentage('');
+                            return;
+                          }
+                          const n = Math.min(100, Math.max(1, Number(digits)));
+                          setNewPaymentPercentage(n);
+                        }}
+                        placeholder="100"
+                        className="w-full bg-transparent text-white font-mono font-black text-sm text-right focus:outline-none"
+                      />
+                      <span className="text-amber-400 font-mono font-black text-sm shrink-0">%</span>
+                    </div>
+                  </div>
+
+                  {/* Dynamic calculation banner */}
+                  {(() => {
+                    const priceVal = Number(newPrice) || 0;
+                    const pct = Math.min(100, Math.max(1, Number(newPaymentPercentage) || 100));
+                    const remPct = 100 - pct;
+                    const firstPay = Math.round((priceVal * pct) / 100);
+                    const remPay = priceVal - firstPay;
+                    return (
+                      <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-slate-300">
+                          <span className="font-bold flex items-center gap-1.5 text-amber-400">
+                            <span>ℹ️ Qoida:</span>
+                            <span>
+                              Birinchi to‘lov qilinadi ({pct}%), keyin mahsulot yetib borganda to‘lanadi ({remPct}%).
+                            </span>
+                          </span>
+                          {priceVal > 0 && (
+                            <span className="font-mono text-[11px] text-sky-300">
+                              1 {draftVariants[0]?.unit || newUnit || 'birlik'} ({formatPrice(priceVal)}) bo‘yicha hisob:
+                            </span>
+                          )}
+                        </div>
+                        {priceVal > 0 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono">
+                            <div className="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 flex items-center justify-between">
+                              <span className="font-sans font-bold text-[11px]">1. Birinchi to‘lov ({pct}%):</span>
+                              <span className="font-black text-sm">{formatPrice(firstPay)}</span>
+                            </div>
+                            <div className="px-2.5 py-1.5 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-300 flex items-center justify-between">
+                              <span className="font-sans font-bold text-[11px]">2. Mahsulot borganda ({remPct}%):</span>
+                              <span className="font-black text-sm">{formatPrice(remPay)}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               {/* 2. MAHSULOT SURATLARI (Majburiy — 12 tagacha) VA MAHSULOTNING VIDEO TAVSIFI */}

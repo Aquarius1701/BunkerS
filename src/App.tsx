@@ -317,7 +317,7 @@ export default function App() {
   // Investor & Platform Demo Data Auto-Seeder: birinchi yuklanishda barcha bo'sh omborlarni boyitish
   useEffect(() => {
     try {
-      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v2');
+      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v3');
       if (isSeeded !== 'done') {
         const rawSupps = localStorage.getItem('bunkerstroy_suppliers');
         const suppsList = rawSupps ? JSON.parse(rawSupps) : [];
@@ -329,6 +329,16 @@ export default function App() {
         const prodsList = rawProds ? JSON.parse(rawProds) : [];
         if (!Array.isArray(prodsList) || prodsList.length === 0) {
           localStorage.setItem('bunkerstroy_products', JSON.stringify(INITIAL_PRODUCTS));
+        } else {
+          // Mavjud mahsulotlarga to'lov foizlarini (paymentPercentage) qo'shish
+          const updatedProds = prodsList.map((p: any) => {
+            const match = INITIAL_PRODUCTS.find((ip) => ip.id === p.id);
+            return {
+              ...p,
+              paymentPercentage: p.paymentPercentage ?? match?.paymentPercentage ?? 100,
+            };
+          });
+          localStorage.setItem('bunkerstroy_products', JSON.stringify(updatedProds));
         }
 
         const rawOrds = localStorage.getItem('bunkerstroy_orders');
@@ -349,7 +359,7 @@ export default function App() {
           localStorage.setItem('bunkerstroy_logs', JSON.stringify(INITIAL_LOGS));
         }
 
-        localStorage.setItem('bunkerstroy_investor_seed_v2', 'done');
+        localStorage.setItem('bunkerstroy_investor_seed_v3', 'done');
         window.dispatchEvent(new CustomEvent('bunkerstroy_suppliers_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_products_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));

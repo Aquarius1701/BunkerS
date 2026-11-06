@@ -65,6 +65,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 68000,
     originalPrice: 72000,
     costPrice: 56000,
+    paymentPercentage: 30, // 30% oldindan, 70% borganda
     unit: 'qop (50kg)',
     supplierId: 'supp-uz-qizilqum-02',
     supplierInn: '201456789',
@@ -93,6 +94,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 58000,
     originalPrice: 62000,
     costPrice: 48000,
+    paymentPercentage: 50, // 50% oldindan, 50% borganda
     unit: 'qop (50kg)',
     supplierId: 'supp-uz-knauf-06',
     supplierInn: '306123987',
@@ -119,6 +121,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 49000,
     originalPrice: 53000,
     costPrice: 40000,
+    paymentPercentage: 40, // 40% oldindan, 60% borganda
     unit: 'qop (50kg)',
     supplierId: 'supp-uz-knauf-06',
     supplierInn: '306123987',
@@ -194,6 +197,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 8900000,
     originalPrice: 9200000,
     costPrice: 8100000,
+    paymentPercentage: 30, // 30% oldindan, 70% yetkazilganda
     unit: 'tonna',
     supplierId: 'supp-uz-bekobod-01',
     supplierInn: '200123456',
@@ -221,6 +225,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     price: 8850000,
     originalPrice: 9150000,
     costPrice: 8050000,
+    paymentPercentage: 50, // 50% oldindan, 50% yetkazilganda
     unit: 'tonna',
     supplierId: 'supp-uz-bekobod-01',
     supplierInn: '200123456',

@@ -198,6 +198,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const regularItems = items.filter((it) => !isZavodCartItem(it));
   const zavodTotal = zavodItems.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
   const regularTotal = regularItems.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
+  const regularPrepaymentTotal = regularItems.reduce((sum, it) => {
+    const pct = it.product.paymentPercentage ?? 100;
+    return sum + Math.round((it.product.price * it.quantity * pct) / 100);
+  }, 0);
+  const regularRemainingTotal = Math.max(0, regularTotal - regularPrepaymentTotal);
+  const zavodPrepaymentTotal = zavodItems.reduce((sum, it) => {
+    const pct = it.product.paymentPercentage ?? 100;
+    return sum + Math.round((it.product.price * it.quantity * pct) / 100);
+  }, 0);
+  const zavodRemainingTotal = Math.max(0, zavodTotal - zavodPrepaymentTotal);
+  const grandPrepaymentTotal = regularPrepaymentTotal + zavodPrepaymentTotal;
+  const grandRemainingTotal = regularRemainingTotal + zavodRemainingTotal;
   const hasZavodItems = zavodItems.length > 0;
   const hasRegularItems = regularItems.length > 0;
   const isMixedCart = hasZavodItems && hasRegularItems;
@@ -823,18 +835,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         deliveryDistrict: district || detectedAddressDetails.district || detectedMapAddress,
         deliveryStreet: mfy || detectedAddressDetails.street || `${mapCoords.lat.toFixed(5)}, ${mapCoords.lng.toFixed(5)}`,
         deliveryLandmark: mfy || detectedAddressDetails.street || detectedMapAddress,
-        items: regularItems.map((i) => ({
-          productId: i.product.id,
-          title: i.product.title,
-          quantity: i.quantity,
-          unit: i.product.unit,
-          price: i.product.price,
-          category: i.product.category,
-          supplierId: i.product.supplierId,
-          supplierInn: i.product.supplierInn,
-          supplierName: i.product.supplierName,
-        })),
+        items: regularItems.map((i) => {
+          const pct = i.product.paymentPercentage ?? 100;
+          const prepay = Math.round((i.product.price * i.quantity * pct) / 100);
+          return {
+            productId: i.product.id,
+            title: i.product.title,
+            quantity: i.quantity,
+            unit: i.product.unit,
+            price: i.product.price,
+            totalSum: i.product.price * i.quantity,
+            category: i.product.category,
+            supplierId: i.product.supplierId,
+            supplierInn: i.product.supplierInn,
+            supplierName: i.product.supplierName,
+            paymentPercentage: pct,
+            prepaymentAmount: prepay,
+            remainingPaymentAmount: (i.product.price * i.quantity) - prepay,
+          };
+        }),
         totalAmount: regularTotal,
+        paymentPercentage: Math.round((regularPrepaymentTotal / (regularTotal || 1)) * 100),
+        prepaymentAmount: regularPrepaymentTotal,
+        remainingPaymentAmount: regularRemainingTotal,
+        prepaymentStatus: 'paid',
+        remainingPaymentStatus: regularRemainingTotal > 0 ? 'pending_on_delivery' : 'paid',
         status: 'pending',
         vehicleType: regularTotal > 5000000 ? 'Gazel (Tezkor yetkazish)' : 'Kichik yuk mashinasi',
         paymentMethod,
@@ -863,18 +888,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         deliveryDistrict: district || detectedAddressDetails.district || detectedMapAddress,
         deliveryStreet: mfy || detectedAddressDetails.street || `${mapCoords.lat.toFixed(5)}, ${mapCoords.lng.toFixed(5)}`,
         deliveryLandmark: mfy || detectedAddressDetails.street || detectedMapAddress,
-        items: zavodItems.map((i) => ({
-          productId: i.product.id,
-          title: i.product.title,
-          quantity: i.quantity,
-          unit: i.product.unit,
-          price: i.product.price,
-          category: i.product.category,
-          supplierId: i.product.supplierId,
-          supplierInn: i.product.supplierInn,
-          supplierName: i.product.supplierName,
-        })),
+        items: zavodItems.map((i) => {
+          const pct = i.product.paymentPercentage ?? 100;
+          const prepay = Math.round((i.product.price * i.quantity * pct) / 100);
+          return {
+            productId: i.product.id,
+            title: i.product.title,
+            quantity: i.quantity,
+            unit: i.product.unit,
+            price: i.product.price,
+            totalSum: i.product.price * i.quantity,
+            category: i.product.category,
+            supplierId: i.product.supplierId,
+            supplierInn: i.product.supplierInn,
+            supplierName: i.product.supplierName,
+            paymentPercentage: pct,
+            prepaymentAmount: prepay,
+            remainingPaymentAmount: (i.product.price * i.quantity) - prepay,
+          };
+        }),
         totalAmount: zavodTotal,
+        paymentPercentage: Math.round((zavodPrepaymentTotal / (zavodTotal || 1)) * 100),
+        prepaymentAmount: zavodPrepaymentTotal,
+        remainingPaymentAmount: zavodRemainingTotal,
+        prepaymentStatus: 'pending',
+        remainingPaymentStatus: zavodRemainingTotal > 0 ? 'pending_on_delivery' : 'paid',
         status: 'pending',
         vehicleType: zavodTotal > 5000000 ? 'Gazel (Tezkor yetkazish)' : 'Kichik yuk mashinasi',
         paymentMethod,
@@ -2165,6 +2203,42 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
                 </div>
 
+                {/* To'lov rejasi: 1-to'lov (Hozir) va 2-to'lov (Mahsulot yetkazilganda) */}
+                {regularRemainingTotal > 0 && !isOnlyZavodCart && (
+                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/50 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-amber-400">
+                      <span className="flex items-center gap-1.5">
+                        <CreditCard className="w-4 h-4 text-amber-400" />
+                        <span>Bo‘lib to‘lash tartibi (Mahsulot to‘lov foizi):</span>
+                      </span>
+                      <span className="font-mono text-emerald-400">
+                        {Math.round((regularPrepaymentTotal / (regularTotal || 1)) * 100)}% oldindan / {100 - Math.round((regularPrepaymentTotal / (regularTotal || 1)) * 100)}% borganda
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                      <div className="p-2.5 rounded-lg bg-[#151719] border border-emerald-500/50">
+                        <span className="text-[10px] text-emerald-300 font-sans font-bold block">
+                          1. Hozir karta orqali to‘lanadi ({Math.round((regularPrepaymentTotal / (regularTotal || 1)) * 100)}%):
+                        </span>
+                        <span className="text-lg font-black text-emerald-400">
+                          {formatPrice(regularPrepaymentTotal)}
+                        </span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-[#151719] border border-sky-500/50">
+                        <span className="text-[10px] text-sky-300 font-sans font-bold block">
+                          2. Mahsulot manzilga borganda to‘lanadi ({100 - Math.round((regularPrepaymentTotal / (regularTotal || 1)) * 100)}%):
+                        </span>
+                        <span className="text-lg font-black text-sky-400">
+                          {formatPrice(regularRemainingTotal)}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-300 font-sans">
+                      💡 Karta orqali hozir faqat 1-to‘lov ({formatPrice(regularPrepaymentTotal)}) yechiladi. Qolgan summa ({formatPrice(regularRemainingTotal)}) mahsulot manzilga yetkazib berilganda to‘lanadi.
+                    </p>
+                  </div>
+                )}
+
                 {isMixedCart ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div className="p-3 rounded-lg bg-[#151719] border border-emerald-500/40">
@@ -2317,15 +2391,49 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 )}
 
                 {/* Chek Total */}
-                <div className="pt-3 border-t-2 border-slate-900 flex justify-between items-baseline">
-                  <span className="text-sm font-black text-slate-950 uppercase">
-                    {completedOrder.paymentStatus === 'awaiting_b2b_approval'
-                      ? 'So‘rov Summasi:'
-                      : "Jami To'langan:"}
-                  </span>
-                  <span className="text-xl font-black font-mono text-slate-950">
-                    {formatPrice(completedOrder.totalAmount)}
-                  </span>
+                <div className="pt-3 border-t-2 border-slate-900 space-y-1.5">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs font-black text-slate-950 uppercase">
+                      {completedOrder.paymentStatus === 'awaiting_b2b_approval'
+                        ? 'So‘rov Summasi:'
+                        : 'Jami Buyurtma Qiymati:'}
+                    </span>
+                    <span className="text-lg font-black font-mono text-slate-950">
+                      {formatPrice(completedOrder.totalAmount)}
+                    </span>
+                  </div>
+
+                  {(completedOrder.remainingPaymentAmount ?? 0) > 0 ? (
+                    <>
+                      <div className="flex justify-between items-baseline text-xs">
+                        <span className="font-bold text-emerald-700">
+                          1-to‘lov (Hozir to‘landi):
+                        </span>
+                        <span className="font-black font-mono text-emerald-700">
+                          {formatPrice(
+                            completedOrder.prepaymentAmount ?? completedOrder.totalAmount
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-baseline text-xs">
+                        <span className="font-bold text-amber-700">
+                          2-to‘lov (Mahsulot yetkazilganda to‘lanadi):
+                        </span>
+                        <span className="font-black font-mono text-amber-700">
+                          {formatPrice(completedOrder.remainingPaymentAmount ?? 0)}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs font-bold text-emerald-700 uppercase">
+                        Holat:
+                      </span>
+                      <span className="text-xs font-black font-mono text-emerald-700">
+                        100% To‘liq to‘langan
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
