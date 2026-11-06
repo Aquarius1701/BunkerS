@@ -290,11 +290,12 @@ export default function App() {
         if (Array.isArray(parsed) && parsed.length > 0) {
           const filtered = parsed.filter((p: Product) => p && p.id && !MOCK_FAKE_PRODUCT_IDS.includes(p.id));
           if (filtered.length > 0) {
-            // v4 image patch: eski Unsplash rasmlarni Pexels bilan almashtirish (init paytida)
+            // v5 image patch: BARCHA mahsulot rasmlarini INITIAL_PRODUCTS dan yangilash
             return filtered.map((p: any) => {
               const match = INITIAL_PRODUCTS.find((ip) => ip.id === p.id);
-              if (match && p.image && p.image.includes('unsplash.com') && match.image.includes('pexels.com')) {
-                return { ...p, image: match.image };
+              if (match) {
+                // Rasm hamisha INITIAL_PRODUCTS dan keladi (yangi Pexels CDN)
+                return { ...p, image: match.image, paymentPercentage: p.paymentPercentage ?? match.paymentPercentage ?? 100 };
               }
               return p;
             });
@@ -327,10 +328,11 @@ export default function App() {
   useEffect(() => {
     try {
       // v4: Pexels CDN rasmlar patch + paymentPercentage
-      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v4');
+      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v5');
       if (isSeeded !== 'done') {
         // Avvalgi seed keylarini tozalab yangi data yuklash
         localStorage.removeItem('bunkerstroy_investor_seed_v3');
+        localStorage.removeItem('bunkerstroy_investor_seed_v4');
 
         const rawSupps = localStorage.getItem('bunkerstroy_suppliers');
         const suppsList = rawSupps ? JSON.parse(rawSupps) : [];
@@ -377,7 +379,7 @@ export default function App() {
           localStorage.setItem('bunkerstroy_logs', JSON.stringify(INITIAL_LOGS));
         }
 
-        localStorage.setItem('bunkerstroy_investor_seed_v4', 'done');
+        localStorage.setItem('bunkerstroy_investor_seed_v5', 'done');
         window.dispatchEvent(new CustomEvent('bunkerstroy_suppliers_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_products_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
