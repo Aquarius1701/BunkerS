@@ -289,7 +289,16 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const filtered = parsed.filter((p: Product) => p && p.id && !MOCK_FAKE_PRODUCT_IDS.includes(p.id));
-          if (filtered.length > 0) return filtered;
+          if (filtered.length > 0) {
+            // v4 image patch: eski Unsplash rasmlarni Pexels bilan almashtirish (init paytida)
+            return filtered.map((p: any) => {
+              const match = INITIAL_PRODUCTS.find((ip) => ip.id === p.id);
+              if (match && p.image && p.image.includes('unsplash.com') && match.image.includes('pexels.com')) {
+                return { ...p, image: match.image };
+              }
+              return p;
+            });
+          }
         }
       }
       return INITIAL_PRODUCTS;
@@ -334,8 +343,9 @@ export default function App() {
         const prodsList = rawProds ? JSON.parse(rawProds) : [];
         if (!Array.isArray(prodsList) || prodsList.length === 0) {
           localStorage.setItem('bunkerstroy_products', JSON.stringify(INITIAL_PRODUCTS));
+          setProducts(INITIAL_PRODUCTS);
         } else {
-          // Har bir mahsulotga yangi rasm URL + paymentPercentage patch
+          // Har bir mahsulotga yangi rasm URL + paymentPercentage patch (React state ham yangilanadi)
           const updatedProds = prodsList.map((p: any) => {
             const match = INITIAL_PRODUCTS.find((ip) => ip.id === p.id);
             return {
@@ -346,6 +356,7 @@ export default function App() {
             };
           });
           localStorage.setItem('bunkerstroy_products', JSON.stringify(updatedProds));
+          setProducts(updatedProds);
         }
 
         const rawOrds = localStorage.getItem('bunkerstroy_orders');
