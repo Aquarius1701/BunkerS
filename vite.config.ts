@@ -94,6 +94,8 @@ export default defineConfig(() => {
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//],
           cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true,
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
