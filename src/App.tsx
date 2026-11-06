@@ -317,24 +317,31 @@ export default function App() {
   // Investor & Platform Demo Data Auto-Seeder: birinchi yuklanishda barcha bo'sh omborlarni boyitish
   useEffect(() => {
     try {
-      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v3');
+      // v4: Pexels CDN rasmlar patch + paymentPercentage
+      const isSeeded = localStorage.getItem('bunkerstroy_investor_seed_v4');
       if (isSeeded !== 'done') {
+        // Avvalgi seed keylarini tozalab yangi data yuklash
+        localStorage.removeItem('bunkerstroy_investor_seed_v3');
+
         const rawSupps = localStorage.getItem('bunkerstroy_suppliers');
         const suppsList = rawSupps ? JSON.parse(rawSupps) : [];
         if (!Array.isArray(suppsList) || suppsList.length === 0) {
           localStorage.setItem('bunkerstroy_suppliers', JSON.stringify(INITIAL_SUPPLIERS));
         }
 
+        // Mahsulotlarni to'liq INITIAL_PRODUCTS bilan almashtirish (yangi Pexels rasmlar + to'lov%)
         const rawProds = localStorage.getItem('bunkerstroy_products');
         const prodsList = rawProds ? JSON.parse(rawProds) : [];
         if (!Array.isArray(prodsList) || prodsList.length === 0) {
           localStorage.setItem('bunkerstroy_products', JSON.stringify(INITIAL_PRODUCTS));
         } else {
-          // Mavjud mahsulotlarga to'lov foizlarini (paymentPercentage) qo'shish
+          // Har bir mahsulotga yangi rasm URL + paymentPercentage patch
           const updatedProds = prodsList.map((p: any) => {
             const match = INITIAL_PRODUCTS.find((ip) => ip.id === p.id);
             return {
               ...p,
+              // Rasmni INITIAL_PRODUCTS dan yangilash (Pexels CDN)
+              image: match?.image ?? p.image,
               paymentPercentage: p.paymentPercentage ?? match?.paymentPercentage ?? 100,
             };
           });
@@ -359,7 +366,7 @@ export default function App() {
           localStorage.setItem('bunkerstroy_logs', JSON.stringify(INITIAL_LOGS));
         }
 
-        localStorage.setItem('bunkerstroy_investor_seed_v3', 'done');
+        localStorage.setItem('bunkerstroy_investor_seed_v4', 'done');
         window.dispatchEvent(new CustomEvent('bunkerstroy_suppliers_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_products_updated'));
         window.dispatchEvent(new CustomEvent('bunkerstroy_orders_updated'));
